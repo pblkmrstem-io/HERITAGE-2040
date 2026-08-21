@@ -1,0 +1,3025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perak Heritage 2040 | Complete Interactive Heritage Portal</title>
+  
+  <!-- Fonts: Outfit (UI) & Space Mono (Telemetry/HUD) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- Leaflet GIS Mapping CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Three.js WebGL 3D Spatial Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #050811;
+      --card-bg: rgba(13, 20, 36, 0.65);
+      --card-border: rgba(0, 240, 255, 0.15);
+      --card-hover-border: rgba(0, 240, 255, 0.5);
+      
+      --accent-cyan: #00f0ff;
+      --accent-cyan-glow: rgba(0, 240, 255, 0.35);
+      --accent-gold: #ffb700;
+      --accent-gold-glow: rgba(255, 183, 0, 0.35);
+      --accent-green: #10b981;
+      
+      --text-light: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      --font-main: 'Outfit', -apple-system, system-ui, sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(0, 240, 255, 0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-cyan);
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 240, 255, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 90% 80%, rgba(255, 183, 0, 0.06), transparent),
+        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 48px 48px, 48px 48px;
+      color: var(--text-light);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      background: rgba(5, 8, 17, 0.92);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(0, 240, 255, 0.10);
+      padding: 0.55rem clamp(0.8rem, 2vw, 1.6rem);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.7rem;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .logo {
+      flex: 0 0 auto;
+      font-size: 0.98rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+      color: var(--text-light);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo span {
+      color: var(--accent-cyan);
+      text-shadow: 0 0 12px var(--accent-cyan-glow);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.12rem;
+      list-style: none;
+      flex: 1 1 auto;
+      min-width: 0;
+      flex-wrap: nowrap;
+    }
+
+    .nav-link {
+      display: block;
+      white-space: nowrap;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-weight: 550;
+      font-size: clamp(0.66rem, 0.72vw, 0.78rem);
+      padding: 0.42rem 0.55rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      transition: all 0.25s var(--ease-out);
+      cursor: pointer;
+    }
+
+    .nav-link:hover {
+      color: var(--text-light);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-link.active {
+      color: var(--accent-cyan);
+      border-color: var(--card-border);
+      background: rgba(0, 240, 255, 0.08);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+      font-weight: 600;
+    }
+
+    nav > .btn {
+      flex: 0 0 auto;
+      padding: 0.42rem 0.62rem;
+      min-width: 0;
+      font-size: 0.68rem;
+      letter-spacing: 0.5px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(0, 240, 255, 0.05));
+      border: 1px solid var(--accent-cyan);
+      color: var(--accent-cyan);
+      padding: 0.6rem 1.3rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all 0.25s var(--ease-out);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    .btn:hover {
+      background: var(--accent-cyan);
+      color: var(--bg-dark);
+      box-shadow: 0 0 25px var(--accent-cyan-glow);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-gold {
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
+      background: linear-gradient(135deg, rgba(255, 183, 0, 0.15), rgba(255, 183, 0, 0.05));
+      box-shadow: 0 0 12px rgba(255, 183, 0, 0.15);
+    }
+
+    .btn-gold:hover {
+      background: var(--accent-gold);
+      color: var(--bg-dark);
+      box-shadow: 0 0 25px var(--accent-gold-glow);
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 2.5rem auto;
+      padding: 0 1.5rem;
+    }
+
+    .section-page {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.4s var(--ease-out), transform 0.4s var(--ease-out);
+    }
+
+    .section-page.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    h1, h2 {
+      color: var(--text-light);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 1.75rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .category-header {
+      font-size: 1.1rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .hero-card {
+      background: linear-gradient(145deg, rgba(13, 20, 36, 0.8), rgba(8, 12, 24, 0.6));
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 3.5rem 2rem;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+    }
+
+    .hero-card h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1rem;
+    }
+
+    .hero-card p {
+      max-width: 720px;
+      margin: 0 auto;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 400;
+      line-height: 1.7;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 1.75rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--card-border);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s var(--ease-out);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-cyan), transparent);
+      opacity: 0.4;
+      transition: opacity 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: var(--card-hover-border);
+      box-shadow: 0 15px 35px rgba(0, 240, 255, 0.12);
+    }
+
+    .card h3 {
+      color: var(--accent-cyan);
+      font-size: 1.25rem;
+      margin-bottom: 0.6rem;
+      font-weight: 600;
+    }
+
+    .idea-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: all 0.3s var(--ease-out);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .idea-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-gold);
+      box-shadow: 0 15px 35px var(--accent-gold-glow);
+    }
+
+    .idea-card-img-wrapper {
+      position: relative;
+      overflow: hidden;
+      height: 220px;
+    }
+
+    .idea-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s var(--ease-out);
+      display: block;
+      background-color: rgba(0, 240, 255, 0.05);
+    }
+
+    .idea-card:hover img {
+      transform: scale(1.05);
+    }
+
+    .idea-content {
+      padding: 1.4rem;
+    }
+
+    .idea-content h3 {
+      color: var(--accent-gold);
+      margin-bottom: 0.5rem;
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    .map-split-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (min-width: 880px) {
+      .map-split-wrapper {
+        flex-direction: row;
+      }
+    }
+
+    #map-container {
+      flex: 1.3;
+      height: 540px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--card-border);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    #side-panel {
+      flex: 1;
+      height: 540px;
+      background: rgba(8, 12, 24, 0.9);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 1.8rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+    }
+
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 0.6rem;
+      margin-bottom: 1rem;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      color: var(--accent-cyan);
+      font-family: var(--font-mono);
+    }
+
+    .hud-title {
+      color: var(--accent-gold);
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+      letter-spacing: -0.01em;
+    }
+
+    .hud-category {
+      display: inline-block;
+      font-size: 0.75rem;
+      background: rgba(0, 240, 255, 0.1);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .side-panel-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1rem;
+    }
+
+    .hud-description {
+      font-size: 0.92rem;
+      color: var(--text-light);
+      line-height: 1.6;
+      background: rgba(0, 240, 255, 0.03);
+      padding: 1rem;
+      border-left: 3px solid var(--accent-cyan);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-bottom: 1rem;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .hud-telemetry {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      padding-top: 1rem;
+    }
+
+    .hud-telemetry span {
+      color: var(--accent-cyan);
+      font-weight: bold;
+    }
+
+    .panel-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .panel-placeholder p {
+      font-size: 0.95rem;
+      margin-top: 1rem;
+    }
+
+    .hotspot-group {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .ar-container {
+      position: relative;
+      background: radial-gradient(circle at center, #0a1128 0%, #030611 100%);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      height: 580px;
+      min-height: 580px;
+    }
+
+    #webglArCanvas {
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 480px;
+      display: block;
+      cursor: grab;
+      flex-grow: 1;
+    }
+
+    #webglArCanvas:active {
+      cursor: grabbing;
+    }
+
+    #labuSayongIframe {
+      width: 100%;
+      height: 100%;
+      min-height: 480px;
+      border: 0;
+      display: none;
+      flex-grow: 1;
+    }
+
+    .hud-top-bar {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-cyan);
+      z-index: 10;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    .ar-container .hud-top-bar {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      pointer-events: none;
+      margin-bottom: 0;
+    }
+
+    .hud-badge {
+      background: rgba(5, 8, 17, 0.85);
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+    }
+
+    .artifact-info-card {
+      position: absolute;
+      top: 60px;
+      left: 15px;
+      max-width: 340px;
+      background: rgba(8, 14, 28, 0.88);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-md);
+      padding: 1.2rem;
+      z-index: 12;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transition: all 0.35s var(--ease-out);
+      pointer-events: auto;
+    }
+
+    .artifact-info-card h4 {
+      color: var(--accent-gold);
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .artifact-info-card .artifact-tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 0.8rem;
+    }
+
+    .artifact-info-card p {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      line-height: 1.5;
+      margin-bottom: 0.8rem;
+    }
+
+    .artifact-stats {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      padding-top: 0.6rem;
+    }
+
+    .artifact-stats span {
+      color: var(--accent-cyan);
+    }
+
+    .ar-controls {
+      display: flex;
+      gap: 0.6rem;
+      padding: 1rem;
+      width: 100%;
+      background: rgba(8, 12, 24, 0.95);
+      border-top: 1px solid var(--card-border);
+      justify-content: center;
+      flex-wrap: wrap;
+      z-index: 20;
+    }
+
+    .pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent-green);
+      animation: blink 1.2s infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .quiz-box {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      padding: 2.5rem;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      margin: 2rem auto;
+    }
+
+    .quiz-progress {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-gold);
+      letter-spacing: 1px;
+      margin-bottom: 0.7rem;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.8rem;
+    }
+
+    .option-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-light);
+      padding: 1rem 1.4rem;
+      text-align: left;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.25s var(--ease-out);
+      font-weight: 500;
+    }
+
+    .option-btn:hover {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.08);
+      color: var(--accent-cyan);
+      transform: translateX(4px);
+    }
+
+    .sources-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin: 1.2rem 0 1.5rem;
+    }
+
+    .sources-search {
+      flex: 1 1 280px;
+      min-width: 220px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-light);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      outline: none;
+    }
+
+    .sources-search:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(0,240,255,0.1);
+    }
+
+    .source-filter {
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--card-border);
+      background: rgba(0,240,255,0.04);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .source-filter.active, .source-filter:hover {
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      background: rgba(0,240,255,0.08);
+    }
+
+    .sources-list {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .sources-list li {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      padding: 1.4rem;
+      border-radius: var(--radius-lg);
+      transition: all 0.3s ease;
+    }
+
+    .sources-list li:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-3px);
+    }
+
+    .sources-list a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .sources-list a:hover {
+      text-decoration: underline;
+    }
+
+    .source-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      padding: 0.25rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,183,0,0.35);
+      color: var(--accent-gold);
+      background: rgba(255,183,0,0.07);
+      margin-bottom: 0.7rem;
+    }
+
+    .source-purpose {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 0.45rem;
+      line-height: 1.55;
+    }
+
+    .source-note {
+      margin-top: 1.5rem;
+      padding: 1rem 1.2rem;
+      border-left: 3px solid var(--accent-gold);
+      background: rgba(255,183,0,0.04);
+      color: var(--text-muted);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.9rem;
+    }
+
+    /* UNIFIED CYBERPUNK HUD STYLES FOR PBL-KMR */
+    .futuristic-pbl-wrapper {
+      max-width: 950px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+      position: relative;
+    }
+
+    .pbl-bottom-spacer {
+      height: 180px !important;
+      width: 100%;
+      display: block !important;
+      clear: both;
+      pointer-events: none;
+    }
+
+    #pbl-evidence {
+      margin-bottom: 2rem !important;
+    }
+
+    .futuristic-stem-section {
+      width: 100%;
+      padding: 2rem;
+      background: rgba(8, 12, 24, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      font-family: 'Outfit', sans-serif;
+      color: #f8fafc;
+      box-sizing: border-box;
+    }
+
+    .status-badge {
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: #00f0ff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-badge.gold {
+      background: rgba(255, 183, 0, 0.08);
+      border-color: rgba(255, 183, 0, 0.3);
+      color: #ffb700;
+    }
+
+    .section-title-box {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .hud-subtitle {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: #00f0ff;
+      letter-spacing: 2px;
+    }
+
+    .section-title-box h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin: 0.3rem 0;
+      background: linear-gradient(135deg, #ffffff, #00f0ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .section-title-box p {
+      color: #94a3b8;
+      font-size: 1rem;
+    }
+
+    /* PIPELINE ACCORDION STYLES */
+    .hud-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .hud-card {
+      background: rgba(13, 20, 36, 0.65);
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .hud-card:hover {
+      border-color: rgba(0, 240, 255, 0.5);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+      transform: translateX(4px);
+    }
+
+    .hud-card[open] {
+      border-color: #00f0ff;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+      background: rgba(13, 20, 36, 0.85);
+    }
+
+    .hud-card.gold-node {
+      border-color: rgba(255, 183, 0, 0.3);
+    }
+
+    .hud-card.gold-node[open] {
+      border-color: #ffb700;
+      box-shadow: 0 0 25px rgba(255, 183, 0, 0.2);
+    }
+
+    .hud-card-header {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+
+    .hud-card-header::-webkit-details-marker {
+      display: none;
+    }
+
+    .step-id {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #00f0ff;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-right: 1rem;
+    }
+
+    .step-id.gold {
+      color: #ffb700;
+      background: rgba(255, 183, 0, 0.1);
+      border-color: rgba(255, 183, 0, 0.3);
+    }
+
+    .step-icon {
+      font-size: 1.3rem;
+      margin-right: 1rem;
+    }
+
+    .step-meta {
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .step-meta h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+
+    .step-tag {
+      font-size: 0.88rem;
+      color: #94a3b8;
+    }
+
+    .step-tag.gold {
+      color: #ffb700;
+    }
+
+    .hud-indicator {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: #00f0ff;
+      letter-spacing: 1px;
+    }
+
+    .hud-indicator.gold {
+      color: #ffb700;
+    }
+
+    .hud-card-body {
+      padding: 0.8rem 1.25rem 1.25rem 4.5rem;
+      border-top: 1px dashed rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .highlight-cyan {
+      color: #00f0ff;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    .highlight-gold {
+      color: #ffb700;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    /* KMR MATRIX STYLES */
+    .kpm-callout-box {
+      background: rgba(0, 240, 255, 0.05);
+      border-left: 4px solid #00f0ff;
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .callout-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .callout-title {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #00f0ff;
+      letter-spacing: 1px;
+    }
+
+    .kpm-callout-box p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .kmr-matrix-container {
+      overflow-x: auto;
+    }
+
+    .kmr-hud-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .kmr-hud-table th {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.75rem;
+      color: #00f0ff;
+      text-align: left;
+      padding: 0.75rem 1rem;
+      letter-spacing: 1px;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+    }
+
+    .kmr-hud-table td {
+      padding: 1rem;
+      background: rgba(13, 20, 36, 0.65);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .kmr-hud-table tr td:first-child {
+      border-left: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 8px 0 0 8px;
+    }
+
+    .kmr-hud-table tr td:last-child {
+      border-right: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 0 8px 8px 0;
+      color: #94a3b8;
+    }
+
+    .kmr-hud-table tr:hover td {
+      background: rgba(13, 20, 36, 0.9);
+      border-color: rgba(0, 240, 255, 0.3);
+    }
+
+    .discipline {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      color: #e2e8f0;
+    }
+
+    .subject-tag {
+      display: inline-block;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .sejarah { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+    .ask { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .english { background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
+    .stem { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .design { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    /* EVIDENCE VAULT STYLES */
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .evidence-card {
+      background: rgba(13, 20, 36, 0.65);
+      border: 1px solid rgba(0, 240, 255, 0.15);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .evidence-card.gold-border {
+      border-color: rgba(255, 183, 0, 0.3);
+    }
+
+    .evidence-card:hover {
+      border-color: #00f0ff;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+      transform: translateY(-4px);
+    }
+
+    .evidence-card.gold-border:hover {
+      border-color: #ffb700;
+      box-shadow: 0 0 25px rgba(255, 183, 0, 0.25);
+    }
+
+    .evidence-media-box {
+      position: relative;
+      width: 100%;
+      height: 150px;
+      background: #090f1d;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+    }
+
+    .evidence-media-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .evidence-card:hover .evidence-media-box img {
+      transform: scale(1.05);
+    }
+
+    .scanline {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(0, 240, 255, 0.05) 51%);
+      background-size: 100% 4px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .media-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(0, 240, 255, 0.1) 0%, rgba(8, 12, 24, 0.9) 100%);
+      color: #00f0ff;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+    }
+
+    .media-placeholder.gold {
+      background: radial-gradient(circle, rgba(255, 183, 0, 0.1) 0%, rgba(8, 12, 24, 0.9) 100%);
+      color: #ffb700;
+    }
+
+    .evidence-info {
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .evidence-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+    }
+
+    .evidence-tag {
+      color: #00f0ff;
+      background: rgba(0, 240, 255, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .evidence-tag.gold {
+      color: #ffb700;
+      background: rgba(255, 183, 0, 0.08);
+    }
+
+    .evidence-code {
+      color: #64748b;
+    }
+
+    .evidence-code.gold {
+      color: #ffb700;
+    }
+
+    .evidence-info h3 {
+      margin: 0 0 0.4rem 0;
+      font-size: 1rem;
+      color: #ffffff;
+    }
+
+    .evidence-info p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 1150px) and (min-width: 681px) {
+      nav {
+        padding-left: 0.7rem;
+        padding-right: 0.7rem;
+        gap: 0.35rem;
+      }
+
+      .logo {
+        font-size: 0.82rem;
+        letter-spacing: 2px;
+      }
+
+      .nav-links {
+        gap: 0;
+      }
+
+      .nav-link {
+        font-size: 0.62rem;
+        padding: 0.38rem 0.38rem;
+      }
+
+      nav > .btn {
+        padding: 0.38rem 0.45rem;
+        font-size: 0.58rem;
+      }
+    }
+
+
+    /* MOBILE NAVIGATION FIX */
+    .mobile-menu-toggle {
+      display: none;
+      border: 1px solid var(--accent-cyan);
+      background: rgba(5, 15, 25, 0.92);
+      color: var(--accent-cyan);
+      font: inherit;
+      font-size: 1rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      line-height: 1;
+      z-index: 1001;
+    }
+
+    .mobile-menu-toggle:focus-visible {
+      outline: 2px solid var(--accent-cyan);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 680px) {
+      nav {
+        position: relative;
+      }
+
+      .mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: calc(100% + 0.35rem);
+        left: 0.7rem;
+        right: 0.7rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.2rem;
+        padding: 0.5rem;
+        max-height: min(70vh, 520px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: rgba(5, 12, 20, 0.98);
+        border: 1px solid var(--accent-cyan);
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        z-index: 1000;
+      }
+
+      .nav-links.mobile-open {
+        display: flex;
+      }
+
+      .nav-link {
+        display: block;
+        width: 100%;
+        min-height: 44px;
+        padding: 0.7rem 0.8rem;
+        font-size: 0.78rem;
+        text-align: left;
+        box-sizing: border-box;
+        touch-action: manipulation;
+      }
+
+      .nav-link:hover,
+      .nav-link:focus-visible {
+        background: rgba(0, 255, 255, 0.08);
+      }
+
+      /* Keep the header usable while the menu is open. */
+      body.mobile-nav-open {
+        overflow: hidden;
+      }
+    }
+
+    /* MOBILE RESPONSIVENESS */
+    @media (max-width: 680px) {
+      nav {
+        padding: 0.55rem 0.7rem;
+      }
+
+      /* Mobile navigation is handled by the hamburger menu above. */
+
+      nav > .btn {
+        display: none;
+      }
+
+      .step-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.1rem;
+      }
+      .hud-card-body {
+        padding-left: 1.25rem;
+      }
+      .hud-indicator {
+        display: none;
+      }
+      .kmr-hud-table th:nth-child(2),
+      .kmr-hud-table td:nth-child(2) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <div class="logo">
+      <span>PERAK</span> // 2040
+    </div>
+    <ul class="nav-links">
+      <li><a class="nav-link active" onclick="switchTab(event, 'home-2040')">Heritage 2040</a></li>
+      <li><a class="nav-link" onclick="switchTab(event, 'gallery')">Gallery</a></li>
+      <li><a class="nav-link" onclick="switchTab(event, 'map')">Interactive Map</a></li>
+      <li><a class="nav-link" onclick="switchTab(event, 'english-story')">English Heritage Story</a></li>
+      <li><a class="nav-link" onclick="switchTab(event, 'tech')">Heritage Technology Lab</a></li>
+      <li><a class="nav-link" onclick="switchTab(event, 'pbl-stem')">PBL-KMR STEM Journey</a></li>
+      <li><a class="nav-link" onclick="switchTab(event, 'future-ideas')">Future Ideas</a></li>
+      <li><a class="nav-link" onclick="switchTab(event, 'quiz')">Heritage Quiz</a></li>
+      <li><a class="nav-link" onclick="switchTab(event, 'showcase')">Student Showcase</a></li>
+      <li><a class="nav-link" onclick="switchTab(event, 'sources')">Trusted Sources</a></li>
+    </ul>
+    <button class="btn" id="audioToggle" onclick="toggleAudio()">🎵 Sound Synth</button>
+  </nav>
+
+  <audio id="bgMusic" loop>
+    <source src="background-music.mp3" type="audio/mpeg">
+  </audio>
+  <!-- Heritage Quiz audio -->
+  <audio id="quizMusic" loop preload="auto">
+    <source src="Iron_Hinge.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="wrongAnswerSound" preload="auto">
+    <source src="eritnhut1992-buzzer-or-wrong-answer-20582.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="rightAnswerSound" preload="auto">
+    <source src="u_ntlsbh1e81-jawab-soal-519748.mp3" type="audio/mpeg">
+  </audio>
+
+
+  <div class="container">
+    
+    <!-- SECTION 1: Heritage 2040 (Home) -->
+    <section id="home-2040" class="section-page active">
+      <div class="hero-card">
+        <h1>HERITAGE 2040</h1>
+        <p>Merging Perak's historical identity with digital technology, interactive heritage mapping, artificial intelligence, sustainable preservation, and youth innovation.</p>
+        <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <button class="btn" onclick="switchTab(null, 'tech')">Explore Heritage Technology Lab</button>
+          <button class="btn" onclick="switchTab(null, 'map')">Explore GIS Telemetry Map</button>
+          <button class="btn" onclick="switchTab(null, 'pbl-stem')">View PBL-KMR Journey</button>
+        </div>
+      </div>
+
+      <h3 class="category-header" style="color: var(--accent-blue, #2196F3);">2040 Museum Vision & Concepts</h3>
+      <div class="grid" style="margin-bottom: 2.5rem;">
+        
+        <div class="idea-card">
+          <div class="idea-card-img-wrapper">
+            <img src="6.jpg" alt="Immersive VR & Spatial Computing Artifact Experience">
+          </div>
+          <div class="idea-content">
+            <h3>08 // Immersive VR & Spatial Computing</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Next-generation spatial environments allowing visitors to physically navigate and interact with historical site recreations using XR headsets.</p>
+          </div>
+        </div>
+
+        <div class="idea-card">
+          <div class="idea-card-img-wrapper">
+            <img src="5.jpg" alt="Interactive High-Resolution 3D Artifact Display">
+          </div>
+          <div class="idea-content">
+            <h3>09 // Interactive 3D Digital Displays</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Touch-enabled, ultra-high-definition interactive walls offering full 360-degree rotation and micro-detail exploration of rare artifacts.</p>
+          </div>
+        </div>
+
+        <div class="idea-card">
+          <div class="idea-card-img-wrapper">
+            <img src="4.jpg" alt="Futuristic Architectural Tech & Kiosk Canopy">
+          </div>
+          <div class="idea-content">
+            <h3>10 // Smart Canopy & Dynamic Data Hubs</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Architecturally integrated data structures combining geometric aesthetic canopies with multi-user interactive information kiosks.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <h2>Strategic Pillars</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>01 // Digital Heritage Archive</h3>
+          <p style="color: var(--text-muted);">A long-term digital archive preserving photographs, historical documents, oral histories, research records, and verified information about Perak's heritage.</p>
+        </div>
+        <div class="card">
+          <h3>02 // AI Heritage Guide</h3>
+          <p style="color: var(--text-muted);">An AI-powered educational assistant that helps visitors learn about Perak's heritage and directs them to reliable historical sources.</p>
+        </div>
+        <div class="card">
+          <h3>03 // Eco-Smart Preservation</h3>
+          <p style="color: var(--text-muted);">Zero-emission transit corridors linking historic districts while protecting surrounding rain forest ecosystems.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: Heritage Archives Gallery -->
+    <section id="gallery" class="section-page">
+      <h2>Heritage Archives</h2>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Core historical landmarks categorized for futuristic spatial preservation.</p>
+      
+      <h3 class="category-header" style="color: var(--accent-cyan);">Built & Architectural Heritage</h3>
+      <div class="grid" style="margin-bottom: 2.5rem;">
+        <div class="idea-card">
+          <div class="idea-card-img-wrapper">
+            <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Kellie's_Castle.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=800&q=80';" alt="Kellie's Castle">
+          </div>
+          <div class="idea-content">
+            <h3>01 // Kellie's Castle</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Early 20th-century Batu Gajah mansion blending Scottish and Moorish architecture, digitized via 3D WebGL meshes.</p>
+          </div>
+        </div>
+
+        <div class="idea-card">
+          <div class="idea-card-img-wrapper">
+            <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Ipoh_Railway_Station.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=800&q=80';" alt="Ipoh Railway Station">
+          </div>
+          <div class="idea-content">
+            <h3>02 // Ipoh Railway Station</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Colonial Edwardian Baroque hub known as the "Taj Mahal of Ipoh", integrated into modern transit networks.</p>
+          </div>
+        </div>
+
+        <div class="idea-card">
+          <div class="idea-card-img-wrapper">
+            <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Leaning_tower_of_teluk_intan.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80';" alt="Leaning Tower of Teluk Intan">
+          </div>
+          <div class="idea-content">
+            <h3>03 // Leaning Tower of Teluk Intan</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Historic 1885 pagoda-style clock tower continuously monitored using real-time structural strain telemetry.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="category-header" style="color: var(--accent-gold);">Royal & Sultanate Heritage</h3>
+      <div class="grid" style="margin-bottom: 2.5rem;">
+        <div class="idea-card">
+          <div class="idea-card-img-wrapper">
+            <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Ubudiah_Mosque,_circa_2023.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&w=800&q=80';" alt="Ubudiah Mosque">
+          </div>
+          <div class="idea-content">
+            <h3>04 // Ubudiah Mosque</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Royal landmark in Kuala Kangsar featuring magnificent golden domes, archived in dynamic lighting grids.</p>
+          </div>
+        </div>
+
+        <div class="idea-card">
+          <div class="idea-card-img-wrapper">
+            <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Istana_kenangan.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';" alt="Istana Kenangan">
+          </div>
+          <div class="idea-content">
+            <h3>05 // Istana Kenangan</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Royal wooden palace constructed without nails, preserved via automated timber micro-climate protection controls.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="category-header" style="color: var(--accent-green);">Natural & Environmental Heritage</h3>
+      <div class="grid" style="margin-bottom: 2.5rem;">
+        <div class="idea-card">
+          <div class="idea-card-img-wrapper">
+            <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/TaipingLake.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=800&q=80';" alt="Taiping Lake Gardens">
+          </div>
+          <div class="idea-content">
+            <h3>06 // Taiping Lake Gardens</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Malaysia's oldest public park, featuring iconic century-old Rain Trees monitored via botanical sensory telemetry[cite: 10].</p>
+          </div>
+        </div>
+
+        <div class="idea-card">
+          <div class="idea-card-img-wrapper">
+            <img src="https://commons.wikimedia.org/wiki/Special:Redirect/file/Perak_River_Kuala_Kangsar.jpg" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80';" alt="Perak River Basin">
+          </div>
+          <div class="idea-content">
+            <h3>07 // Perak River Basin</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Historical 400 km river cradle of royal dynasties and rich biodiversity, mapped with 3D hydro-surface telemetry[cite: 10].</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Interactive Map -->
+    <section id="map" class="section-page">
+      <h2>Interactive Spatial Telemetry Map</h2>
+      <p style="color: var(--text-muted);">Select any map marker or node button below to trigger telemetry audio and inspect site analytics on the HUD panel.</p>
+      
+      <div class="map-split-wrapper">
+        <div id="map-container"></div>
+
+        <div id="side-panel">
+          <div class="panel-placeholder">
+            <div style="font-size: 2.5rem; color: var(--accent-cyan); opacity: 0.7;">📡</div>
+            <h3 style="color: var(--accent-cyan); margin-top: 0.5rem; font-weight: 600;">TELEMETRY STANDBY</h3>
+            <p>Select a heritage marker on the map to stream historical archives and structural analysis.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="hotspot-group">
+        <button class="btn" onclick="focusSite(0)">Kellie's Castle</button>
+        <button class="btn" onclick="focusSite(1)">Ipoh Railway</button>
+        <button class="btn" onclick="focusSite(2)">Teluk Intan Tower</button>
+        <button class="btn" onclick="focusSite(3)">Ubudiah Mosque</button>
+        <button class="btn" onclick="focusSite(4)">Istana Kenangan</button>
+        <button class="btn" onclick="focusSite(5)">Taiping Lakes</button>
+        <button class="btn" onclick="focusSite(6)">Perak River</button>
+        <button class="btn btn-gold" onclick="resetMapView()">Reset State View</button>
+      </div>
+    </section>
+
+    <!-- SECTION 4: English Heritage Story -->
+    <section id="english-story" class="section-page">
+      <div class="hero-card" style="text-align:center;">
+        <div style="color:var(--accent-gold);letter-spacing:2px;font-size:.8rem;margin-bottom:.6rem;">// ENGLISH HERITAGE STORY //\</div>
+        <h2>Mystery of Perak Man</h2>
+        <p style="color:var(--text-muted);max-width:850px;margin:0 auto;line-height:1.8;">
+          Explore the story of Perak Man, one of the most significant prehistoric discoveries associated with the Lenggong Valley. This English-language story uses video to bring Perak's archaeological heritage to life.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <div>
+            <div style="color:var(--accent-cyan);font-size:.75rem;letter-spacing:1.5px;">STORY 01 // ENGLISH</div>
+            <h3 style="margin-top:.4rem;">The Mystery of Perak Man</h3>
+          </div>
+          <span class="status-badge gold">ARCHAEOLOGICAL HERITAGE</span>
+        </div>
+
+        <div style="width:100%;overflow:hidden;border-radius:12px;background:#000;">
+          <video controls preload="metadata" style="display:block;width:100%;max-height:650px;background:#000;">
+            <source src="Mystery_of_Perak_Man.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
+        <div style="margin-top:1.25rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
+          <div style="padding:1rem;border:1px solid rgba(0,234,255,.18);border-radius:10px;">
+            <strong style="color:var(--accent-cyan);">Focus</strong>
+            <p style="color:var(--text-muted);margin-top:.35rem;">Perak Man and the prehistoric heritage of Lenggong Valley.</p>
+          </div>
+          <div style="padding:1rem;border:1px solid rgba(255,193,7,.18);border-radius:10px;">
+            <strong style="color:var(--accent-gold);">Language</strong>
+            <p style="color:var(--text-muted);margin-top:.35rem;">English Heritage Story for international and English-speaking visitors.</p>
+          </div>
+          <div style="padding:1rem;border:1px solid rgba(0,234,255,.18);border-radius:10px;">
+            <strong style="color:var(--accent-cyan);">Reference</strong>
+            <p style="color:var(--text-muted);margin-top:.35rem;">See the Trusted Sources section for official heritage references.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: 3D AR & Interactive Artifact Lab -->
+    <section id="tech" class="section-page">
+      <h2>3D AR Interactive Artifact Studio</h2>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Click any button below to render dynamic 3D WebGL models or explore high-fidelity digital twin Sketchfab embeds. Drag to rotate 360°, scroll to zoom, or click directly on the 3D model to inspect!</p>
+
+      <div class="ar-container">
+        <div class="hud-top-bar">
+          <div class="hud-badge"><span class="pulse-dot"></span> 3D RENDERER: ONLINE</div>
+          <div class="hud-badge" id="arCoordsHud">ROTATION: X: 0° | Y: 0°</div>
+          <div class="hud-badge" id="arLocationName" style="color: var(--accent-gold);">LABU SAYONG 3D POTTERY</div>
+        </div>
+
+        <div class="artifact-info-card" id="artifactHudCard">
+          <span class="artifact-tag" id="hudArtifactCategory">TRADITIONAL CRAFT & HERITAGE</span>
+          <h4 id="hudArtifactTitle">LABU SAYONG 3D POTTERY</h4>
+          <p id="hudArtifactDesc">Iconic gourd-shaped clay jar from Sayong, Perak. Fired and finished with paddy husks to produce its signature charcoal sheen and natural cooling properties.</p>
+          <div class="artifact-stats">
+            <div>AGE: <span id="hudArtifactAge">CENTURIES OLD</span></div>
+            <div>MATERIAL: <span id="hudArtifactMat">EARTHENWARE CLAY</span></div>
+            <div>ORIGIN: <span id="hudArtifactLoc">SAYONG, KUALA KANGSAR</span></div>
+            <div>MESH: <span id="hudArtifactMesh">3D DIGITAL TWIN</span></div>
+          </div>
+        </div>
+
+        <canvas id="webglArCanvas"></canvas>
+
+        <iframe 
+            id="labuSayongIframe" 
+            title="Perak Heritage 3D Viewer" 
+            src="https://sketchfab.com/models/ce5c9dd5cac644029ef55a7da02ad8c4/embed?autostart=1&ui_theme=dark&ui_controls=1" 
+            allow="autoplay; fullscreen; vr" 
+            mozallowfullscreen="true" 
+            webkitallowfullscreen="true">
+        </iframe>
+
+        <div class="ar-controls">
+          <button class="btn btn-gold" onclick="load3DArtifact('labu')">🏺 Labu Sayong 3D</button>
+          <button class="btn btn-gold" onclick="load3DArtifact('kellies_castle')">🏰 Kellie's Castle</button>
+          <button class="btn btn-gold" onclick="load3DArtifact('royal_museum')">🏛️ Perak Royal Museum</button>
+          <button class="btn btn-gold" onclick="load3DArtifact('teluk_intan_tower')">🕌 Leaning Tower Teluk Intan</button>
+          <button class="btn btn-gold" onclick="toggleAutoRotate()">🔄 Toggle Auto-Spin</button>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top: 2rem;">
+        <div class="card">
+          <h3>3D Volumetric Mesh Inspection</h3>
+          <p style="color: var(--text-muted);">Real-time procedural WebGL geometry generation and high-resolution spatial scanning allowing visitors to zoom, orbit, and analyze structural artifacts.</p>
+        </div>
+        <div class="card">
+          <h3>Raycasting Interaction</h3>
+          <p style="color: var(--text-muted);">Clicking directly on 3D meshes triggers dynamic spatial lighting pulses and real-time structural analysis.</p>
+        </div>
+        <div class="card">
+          <h3>Spatial AR Projection</h3>
+          <p style="color: var(--text-muted);">Inspect glowing volumetric hologram frames and procedural digital twin representations in full 3D viewport space.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: PBL-KMR STEM Journey -->
+    <section id="pbl-stem" class="section-page">
+      <div class="futuristic-pbl-wrapper">
+
+        <!-- PART 1: 10-STEP STEM PIPELINE -->
+        <div id="pbl-stem-journey" class="futuristic-stem-section">
+          <div class="hud-top-bar">
+            <div class="status-badge"><span class="pulse-dot"></span> STEM PIPELINE // ONLINE</div>
+            <div class="status-badge gold">PROTOCOL: KMR-PBL v2040</div>
+          </div>
+
+          <div class="section-title-box">
+            <span class="hud-subtitle">// SYSTEM_PROCESS: RESEARCH_TO_DEPLOYMENT</span>
+            <h2>🔬 PBL-KMR STEM JOURNEY</h2>
+            <p>From Heritage Problem to Future Solution</p>
+          </div>
+
+          <!-- Interactive Terminal Pipeline Accordion -->
+          <div class="hud-timeline">
+
+            <!-- Step 01 -->
+            <details class="hud-card">
+              <summary class="hud-card-header">
+                <div class="step-id">01</div>
+                <div class="step-icon">🔎</div>
+                <div class="step-meta">
+                  <h3>DISCOVER</h3>
+                  <span class="step-tag">Explore Perak's heritage</span>
+                </div>
+                <div class="hud-indicator">[ EXPAND ]</div>
+              </summary>
+              <div class="hud-card-body">
+                <p><strong class="highlight-cyan">OBJECTIVE:</strong> We explore Perak's historical sites, artefacts, traditions, buildings, and natural heritage to establish cultural context and deep historical appreciation.</p>
+              </div>
+            </details>
+
+            <!-- Step 02 -->
+            <details class="hud-card">
+              <summary class="hud-card-header">
+                <div class="step-id">02</div>
+                <div class="step-icon">❓</div>
+                <div class="step-meta">
+                  <h3>IDENTIFY</h3>
+                  <span class="step-tag">Find a heritage problem</span>
+                </div>
+                <div class="hud-indicator">[ EXPAND ]</div>
+              </summary>
+              <div class="hud-card-body">
+                <p><strong class="highlight-cyan">OBJECTIVE:</strong> We isolate critical real-world challenges affecting heritage preservation, such as declining engagement, physical decay, or limited spatial accessibility.</p>
+              </div>
+            </details>
+
+            <!-- Step 03 -->
+            <details class="hud-card">
+              <summary class="hud-card-header">
+                <div class="step-id">03</div>
+                <div class="step-icon">📚</div>
+                <div class="step-meta">
+                  <h3>RESEARCH</h3>
+                  <span class="step-tag">Collect reliable information</span>
+                </div>
+                <div class="hud-indicator">[ EXPAND ]</div>
+              </summary>
+              <div class="hud-card-body">
+                <p><strong class="highlight-cyan">OBJECTIVE:</strong> We cross-reference primary historical sources, execute site scans, study photographs, conduct oral history interviews, and verify data from trusted archives.</p>
+              </div>
+            </details>
+
+            <!-- Step 04 -->
+            <details class="hud-card">
+              <summary class="hud-card-header">
+                <div class="step-id">04</div>
+                <div class="step-icon">🧠</div>
+                <div class="step-meta">
+                  <h3>ANALYSE</h3>
+                  <span class="step-tag">Understand the problem</span>
+                </div>
+                <div class="hud-indicator">[ EXPAND ]</div>
+              </summary>
+              <div class="hud-card-body">
+                <p><strong class="highlight-cyan">OBJECTIVE:</strong> We evaluate target findings, correlate metrics, and map out core root causes, structural vulnerabilities, and community needs.</p>
+              </div>
+            </details>
+
+            <!-- Step 05 -->
+            <details class="hud-card">
+              <summary class="hud-card-header">
+                <div class="step-id">05</div>
+                <div class="step-icon">💡</div>
+                <div class="step-meta">
+                  <h3>IDEATE</h3>
+                  <span class="step-tag">Generate possible solutions</span>
+                </div>
+                <div class="hud-indicator">[ EXPAND ]</div>
+              </summary>
+              <div class="hud-card-body">
+                <p><strong class="highlight-cyan">OBJECTIVE:</strong> We brainstorm solutions applying Science, Technology, Engineering, and Mathematics (STEM) frameworks to directly resolve our identified challenge.</p>
+              </div>
+            </details>
+
+            <!-- Step 06 -->
+            <details class="hud-card">
+              <summary class="hud-card-header">
+                <div class="step-id">06</div>
+                <div class="step-icon">🎨</div>
+                <div class="step-meta">
+                  <h3>DESIGN</h3>
+                  <span class="step-tag">Plan our solution</span>
+                </div>
+                <div class="hud-indicator">[ EXPAND ]</div>
+              </summary>
+              <div class="hud-card-body">
+                <p><strong class="highlight-cyan">OBJECTIVE:</strong> We blueprint technical systems, user interfaces, database structures, and spatial viewports for our interactive website, GIS map, and 3D digital archives.</p>
+              </div>
+            </details>
+
+            <!-- Step 07 -->
+            <details class="hud-card">
+              <summary class="hud-card-header">
+                <div class="step-id">07</div>
+                <div class="step-icon">🛠️</div>
+                <div class="step-meta">
+                  <h3>CREATE</h3>
+                  <span class="step-tag">Build the prototype</span>
+                </div>
+                <div class="hud-indicator">[ EXPAND ]</div>
+              </summary>
+              <div class="hud-card-body">
+                <p><strong class="highlight-cyan">OBJECTIVE:</strong> We code and build functional software engines using HTML5, WebGL 3D rendering, Leaflet mapping APIs, and interactive Web Audio synthesizers.</p>
+              </div>
+            </details>
+
+            <!-- Step 08 -->
+            <details class="hud-card">
+              <summary class="hud-card-header">
+                <div class="step-id">08</div>
+                <div class="step-icon">🧪</div>
+                <div class="step-meta">
+                  <h3>TEST</h3>
+                  <span class="step-tag">Evaluate and improve</span>
+                </div>
+                <div class="hud-indicator">[ EXPAND ]</div>
+              </summary>
+              <div class="hud-card-body">
+                <p><strong class="highlight-cyan">OBJECTIVE:</strong> We deploy user testing loops, collect metrics, diagnose usability bottlenecks, and execute iterative code optimizations.</p>
+              </div>
+            </details>
+
+            <!-- Step 09 -->
+            <details class="hud-card">
+              <summary class="hud-card-header">
+                <div class="step-id">09</div>
+                <div class="step-icon">🎤</div>
+                <div class="step-meta">
+                  <h3>PRESENT</h3>
+                  <span class="step-tag">Share our solution</span>
+                </div>
+                <div class="hud-indicator">[ EXPAND ]</div>
+              </summary>
+              <div class="hud-card-body">
+                <p><strong class="highlight-cyan">OBJECTIVE:</strong> We present our research, functional software prototypes, and community impact to educators, peers, and heritage advocates.</p>
+              </div>
+            </details>
+
+            <!-- Step 10 -->
+            <details class="hud-card gold-node">
+              <summary class="hud-card-header">
+                <div class="step-id gold">10</div>
+                <div class="step-icon">🚀</div>
+                <div class="step-meta">
+                  <h3 class="highlight-gold">HERITAGE 2040</h3>
+                  <span class="step-tag gold">Imagine the future</span>
+                </div>
+                <div class="hud-indicator gold">[ EXPAND ]</div>
+              </summary>
+              <div class="hud-card-body">
+                <p><strong class="highlight-gold">OBJECTIVE:</strong> We project forward into 2040—scaling decentralized digital twins, AI holograms, and spatial mapping to preserve Perak's legacy indefinitely.</p>
+              </div>
+            </details>
+
+          </div>
+        </div>
+
+        <!-- PART 2: KMR SUBJECT INTEGRATION MATRIX -->
+        <div id="kmr-matrix" class="futuristic-stem-section">
+          <div class="hud-top-bar">
+            <div class="status-badge"><span class="pulse-dot"></span> KMR CORE ENGINE // ACTIVE</div>
+            <div class="status-badge gold">ALIGNMENT: KPM STEM FRAMEWORK</div>
+          </div>
+
+          <div class="section-title-box">
+            <span class="hud-subtitle">// CROSS_DISCIPLINARY_MATRIX: KEFAHAMAN_MELALUI_REKA_BENTUK</span>
+            <h2>🧬 KMR SUBJECT INTEGRATION</h2>
+            <p>Synthesizing STEM, humanities, and digital literacy under KPM frameworks</p>
+          </div>
+
+          <!-- KPM Guideline Callout -->
+          <div class="kpm-callout-box">
+            <div class="callout-header">
+              <span class="callout-icon">💡</span>
+              <span class="callout-title">KPM STEM INTEGRATION FRAMEWORK</span>
+            </div>
+            <p>In accordance with Ministry of Education Malaysia (KPM) guidelines, our STEM approach unifies STEM and non-STEM disciplines alongside digital, data, and technology literacy to build holistic solutions for heritage preservation.</p>
+          </div>
+
+          <!-- HUD Data Matrix Table -->
+          <div class="kmr-matrix-container">
+            <table class="kmr-hud-table">
+              <thead>
+                <tr>
+                  <th>SUBJECT</th>
+                  <th>CORE DISCIPLINE</th>
+                  <th>SYSTEM CONTRIBUTION & DELIVERABLES</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="subject-tag sejarah">📜 Sejarah</span></td>
+                  <td class="discipline">Humanities</td>
+                  <td>Heritage research, primary historical evidence validation, and cultural context mapping for Perak archives.</td>
+                </tr>
+                <tr>
+                  <td><span class="subject-tag ask">💻 ASK</span></td>
+                  <td class="discipline">Computer Science</td>
+                  <td>Website architecture, digital technology integration, database structures, and dynamic interactivity.</td>
+                </tr>
+                <tr>
+                  <td><span class="subject-tag english">🇬🇧 English</span></td>
+                  <td class="discipline">Languages</td>
+                  <td>Narrative storytelling, global communication, technical documentation, and presentation scripts.</td>
+                </tr>
+                <tr>
+                  <td><span class="subject-tag stem">🔬 STEM</span></td>
+                  <td class="discipline">Sci / Tech / Eng / Math</td>
+                  <td>Scientific investigation, engineering design loops, data analytics, and functional testing.</td>
+                </tr>
+                <tr>
+                  <td><span class="subject-tag design">🎨 Design</span></td>
+                  <td class="discipline">Arts & Design</td>
+                  <td>UI/UX experience planning, visual communication, 3D assets, and spatial aesthetic layouts.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PART 3: OUR PBL EVIDENCE VAULT -->
+        <div id="pbl-evidence" class="futuristic-stem-section">
+          <div class="hud-top-bar">
+            <div class="status-badge"><span class="pulse-dot"></span> PROOF OF LEARNING // VERIFIED</div>
+            <div class="status-badge gold">DATA VAULT: 9 ARTIFACT SETS</div>
+          </div>
+
+          <div class="section-title-box">
+            <span class="hud-subtitle">// PROCESS_DOCUMENTATION: AUTHENTIC_LEARNING_ARTIFACTS</span>
+            <h2>📸 OUR PBL EVIDENCE</h2>
+            <p>Tangible proof of our research, iteration, and engineering lifecycle</p>
+          </div>
+
+          <!-- PBL Evidence Section -->
+<div class="evidence-section">
+  <h2>PBL Evidence</h2>
+
+  <!-- Photo Gallery Grid -->
+  <div class="photo-gallery">
+    <div class="evidence-card">
+      <img src="kickoff.jpeg" alt="Project Kickoff and Brainstorming">
+      <p><strong>Phase 1:</strong> Initial brainstorming and assigning group roles.</p>
+    </div>
+
+    <div class="evidence-card">
+      <img src="collaboration.jpeg" alt="Hands-On Collaboration">
+      <p><strong>Phase 2:</strong> Active investigation and building our initial prototype.</p>
+    </div>
+
+    <div class="evidence-card">
+      <img src="feedback.jpeg" alt="Iteration and Expert Feedback">
+      <p><strong>Phase 3:</strong> Testing hypotheses and applying feedback to refine the solution.</p>
+    </div>
+
+    <div class="evidence-card">
+      <img src="final-product.jpeg" alt="Final Product Display">
+      <p><strong>Final Deliverable:</strong> The completed project model ready for presentation.</p>
+    </div>
+  </div>
+
+  <!-- Video Showcase -->
+  <div class="video-container">
+    <video controls poster="video-thumbnail.jpg">
+      <source src="final-presentation.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+    <p><strong>Presentation Highlights:</strong> Presenting our final solution and team reflection.</p>
+  </div>
+</div>
+
+      </div> <!-- closes .pbl-evidence futuristic section -->
+      </div> <!-- closes .futuristic-pbl-wrapper -->
+    </section>
+
+<!-- SECTION 6: Future Ideas -->
+<section id="future-ideas" class="section-page">
+  <div class="fi-wrap">
+    <div class="fi-kicker">// FUTURE VISION // 2040</div>
+    <h2 class="fi-title">Future <span>Ideas</span></h2>
+    <p class="fi-intro">
+      Imagine how digital technology, sustainability, education and young people could help protect Perak's heritage for future generations.
+    </p>
+
+    <div class="fi-grid">
+      <article class="fi-card">
+        <div class="fi-number">01</div><div class="fi-icon">🌐</div>
+        <h3>Smart Heritage Mapping</h3>
+        <p>Connect Perak's heritage sites, locations, historical information and preservation records in one interactive digital map.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">A future map could help visitors discover heritage trails while helping students and organisations organise verified heritage information by location.</div>
+      </article>
+
+      <article class="fi-card">
+        <div class="fi-number">02</div><div class="fi-icon">🤖</div>
+        <h3>AI Heritage Guide</h3>
+        <p>An educational AI assistant that helps users learn about Perak's heritage and directs them to reliable historical sources.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">The concept can answer questions, explain historical terms and recommend verified sources. AI-generated information should always be checked against trusted references.</div>
+      </article>
+
+      <article class="fi-card">
+        <div class="fi-number">03</div><div class="fi-icon">🌱</div>
+        <h3>Eco-Smart Preservation</h3>
+        <p>Combine heritage conservation with sustainable practices and environmental monitoring.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">Possible future solutions include energy-efficient systems, responsible visitor management and environmental monitoring around heritage sites.</div>
+      </article>
+
+      <article class="fi-card">
+        <div class="fi-number">04</div><div class="fi-icon">☁️</div>
+        <h3>Heritage Cloud Archive</h3>
+        <p>Preserve photographs, documents, oral histories, research and verified heritage information digitally.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">Each heritage record could include its name, location, historical significance, photographs, references and preservation information.</div>
+      </article>
+
+      <article class="fi-card">
+        <div class="fi-number">05</div><div class="fi-icon">👩‍🎓</div>
+        <h3>Youth Heritage Network</h3>
+        <p>Encourage students and young people to research, document and promote local heritage.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">Students could conduct local research, record oral histories, create digital stories and contribute verified educational material to the heritage community.</div>
+      </article>
+
+      <article class="fi-card">
+        <div class="fi-number">06</div><div class="fi-icon">🏛️</div>
+        <h3>Smart Heritage Management</h3>
+        <p>Use connected information systems to support visitor management, heritage records and conservation planning.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">A future management system could bring together site information, visitor data and conservation records to support better planning and decision-making.</div>
+      </article>
+    </div>
+
+    <div class="fi-vision">
+      <div class="fi-vision-label">HERITAGE 2040 // THE BIG QUESTION</div>
+      <h3>How can we protect the past while preparing for the future?</h3>
+      <p>Choose a heritage area, a goal and a practical solution below to create your own Heritage 2040 concept.</p>
+    </div>
+
+    <div class="fi-generator">
+      <div class="fi-generator-head">
+        <div class="fi-kicker">// DESIGN LAB</div>
+        <h3>DESIGN PERAK <span>2040</span></h3>
+      </div>
+      <div class="fi-controls">
+        <label>HERITAGE AREA
+          <select id="fiHeritage">
+            <option>Archaeology</option><option>Historic Buildings</option><option>Royal Heritage</option>
+            <option>Industrial Heritage</option><option>Natural Heritage</option><option>Traditional Culture</option>
+          </select>
+        </label>
+        <label>FUTURE GOAL
+          <select id="fiGoal">
+            <option>Preserve</option><option>Educate</option><option>Promote</option><option>Research</option><option>Engage Young People</option>
+          </select>
+        </label>
+        <label>PROPOSED SOLUTION
+          <select id="fiSolution">
+            <option>Smart Heritage Mapping</option><option>AI Heritage Guide</option><option>Eco-Smart Preservation</option>
+            <option>Heritage Cloud Archive</option><option>Youth Heritage Network</option><option>Smart Heritage Management</option>
+          </select>
+        </label>
+      </div>
+      <button class="fi-generate" onclick="generateFutureIdea()">GENERATE MY 2040 IDEA <span>→</span></button>
+      <div id="fiResult" class="fi-result">
+        <div class="fi-result-tag">YOUR HERITAGE 2040 CONCEPT</div>
+        <h4 id="fiResultTitle"></h4>
+        <p id="fiResultText"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ===== FUTURE IDEAS ===== */
+#future-ideas .fi-wrap{max-width:1180px;margin:0 auto;padding:10px 2vw 50px}
+#future-ideas .fi-kicker{color:var(--accent-cyan,#00eaff);font-size:.68rem;letter-spacing:.22em;font-weight:700}
+#future-ideas .fi-title{font-size:clamp(2.5rem,6vw,5rem);line-height:1;margin:12px 0 16px;text-align:center;letter-spacing:-.04em}
+#future-ideas .fi-title span,#future-ideas .fi-generator-head h3 span{color:var(--accent-cyan,#00eaff)}
+#future-ideas .fi-intro{max-width:760px;margin:0 auto 44px;text-align:center;color:var(--text-muted,#8da5b5);line-height:1.8;font-size:.98rem}
+#future-ideas .fi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+#future-ideas .fi-card{position:relative;padding:25px;border:1px solid rgba(0,234,255,.18);border-radius:14px;background:linear-gradient(145deg,rgba(7,20,34,.96),rgba(4,11,20,.96));overflow:hidden;transition:.28s ease}
+#future-ideas .fi-card:before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--accent-cyan,#00eaff),transparent)}
+#future-ideas .fi-card:hover{transform:translateY(-4px);border-color:rgba(0,234,255,.45);box-shadow:0 16px 38px rgba(0,0,0,.28)}
+#future-ideas .fi-number{position:absolute;right:20px;top:17px;color:rgba(0,234,255,.45);font-size:.72rem;letter-spacing:.12em;font-weight:800}
+#future-ideas .fi-icon{font-size:2rem;margin-bottom:13px}
+#future-ideas .fi-card h3{font-size:1.18rem;margin-bottom:10px;color:#f0fbff}
+#future-ideas .fi-card p{font-size:.87rem;line-height:1.7;color:var(--text-muted,#8da5b5);min-height:70px}
+#future-ideas .fi-more{margin-top:16px;background:transparent;border:1px solid rgba(0,234,255,.45);color:var(--accent-cyan,#00eaff);border-radius:5px;padding:8px 12px;font-size:.65rem;font-weight:800;letter-spacing:.12em;cursor:pointer}
+#future-ideas .fi-more:hover{background:var(--accent-cyan,#00eaff);color:#031019}
+#future-ideas .fi-more span{font-size:.85rem;margin-left:5px}
+#future-ideas .fi-detail{display:none;margin-top:15px;padding:13px 14px;border-left:2px solid var(--accent-cyan,#00eaff);background:rgba(0,234,255,.035);color:#aec1cb;font-size:.78rem;line-height:1.7}
+#future-ideas .fi-detail.open{display:block}
+#future-ideas .fi-vision{margin:48px 0 20px;padding:30px;border:1px solid rgba(230,184,74,.3);border-radius:14px;text-align:center;background:linear-gradient(145deg,rgba(24,22,13,.7),rgba(7,15,24,.85))}
+#future-ideas .fi-vision-label{color:var(--accent-gold,#e6b84a);font-size:.63rem;letter-spacing:.2em;font-weight:800;margin-bottom:12px}
+#future-ideas .fi-vision h3{font-size:clamp(1.35rem,3vw,2rem);margin-bottom:10px}
+#future-ideas .fi-vision p{color:var(--text-muted,#8da5b5);line-height:1.7;max-width:720px;margin:auto;font-size:.87rem}
+#future-ideas .fi-generator{padding:30px;border:1px solid rgba(0,234,255,.22);border-radius:16px;background:rgba(5,14,24,.9)}
+#future-ideas .fi-generator-head{text-align:center;margin-bottom:24px}
+#future-ideas .fi-generator-head h3{font-size:clamp(1.5rem,3vw,2.2rem);margin-top:8px}
+#future-ideas .fi-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+#future-ideas .fi-controls label{display:flex;flex-direction:column;gap:8px;color:#9fb5c0;font-size:.62rem;letter-spacing:.14em;font-weight:700}
+#future-ideas .fi-controls select{width:100%;padding:12px;border:1px solid #183d4d;border-radius:7px;background:#06111c;color:#eefcff;outline:none;font-size:.82rem}
+#future-ideas .fi-controls select:focus{border-color:var(--accent-cyan,#00eaff);box-shadow:0 0 0 2px rgba(0,234,255,.08)}
+#future-ideas .fi-generate{display:block;margin:24px auto 0;padding:12px 19px;border:0;border-radius:6px;background:var(--accent-cyan,#00eaff);color:#021018;font-weight:900;font-size:.68rem;letter-spacing:.1em;cursor:pointer}
+#future-ideas .fi-generate:hover{box-shadow:0 0 24px rgba(0,234,255,.3);transform:translateY(-1px)}
+#future-ideas .fi-generate span{font-size:1rem;margin-left:7px}
+#future-ideas .fi-result{display:none;margin-top:24px;padding:22px;border:1px solid rgba(0,234,255,.5);border-radius:10px;background:rgba(0,234,255,.035);text-align:center}
+#future-ideas .fi-result.show{display:block}
+#future-ideas .fi-result-tag{color:var(--accent-cyan,#00eaff);font-size:.58rem;letter-spacing:.18em;font-weight:800;margin-bottom:9px}
+#future-ideas .fi-result h4{font-size:1.15rem;margin-bottom:9px}
+#future-ideas .fi-result p{max-width:760px;margin:auto;color:#aec1cb;line-height:1.75;font-size:.84rem}
+@media(max-width:760px){#future-ideas .fi-grid,#future-ideas .fi-controls{grid-template-columns:1fr}#future-ideas .fi-card p{min-height:auto}#future-ideas .fi-wrap{padding-left:4vw;padding-right:4vw}}
+</style>
+
+<!-- SECTION 7: Interactive Heritage Quiz -->
+    <section id="quiz" class="section-page">
+      <h2 style="text-align: center; display: block;">Interactive Heritage Quiz</h2>
+      <p style="color: var(--text-muted); text-align: center; margin-bottom: 1.5rem;">10 history questions based on the Heritage Gallery and Interactive Map.</p>
+      
+      <div class="quiz-box">
+        <div id="quiz-container">
+          <div id="quiz-progress" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-gold); letter-spacing: 1px; margin-bottom: 0.7rem;">QUESTION 1 / 10</div>
+          <h3 id="quiz-question" style="color: var(--accent-cyan); font-weight: 600;">Question Loading...</h3>
+          <div class="quiz-options" id="quiz-options"></div>
+        </div>
+        <div id="quiz-result" style="display: none; text-align: center;">
+          <h3 style="color: var(--accent-gold); font-size: 1.8rem;" id="score-title">QUIZ COMPLETED</h3>
+          <p style="margin: 1.5rem 0; font-size: 1.2rem; color: var(--text-light);" id="score-text"></p>
+          <button class="btn" onclick="resetQuiz()">Restart Quiz</button>
+        </div>
+      </div>
+    </section>
+
+  <!-- SECTION 8: Student Showcase -->
+    <section id="showcase" class="section-page">
+      <div class="hero-card" style="text-align:center;">
+        <h2>MEET THE HERITAGE 2040 TEAM</h2>
+        <p style="color:var(--text-muted);">
+          <strong style="color:#00eaff;">4 STUDENTS</strong> •
+          <strong style="color:#00eaff;">3 TEACHERS</strong> •
+          <strong style="color:#00eaff;">1 SHARED MISSION</strong>
+        </p>
+        <p style="margin-top:1rem;color:var(--text-muted);">
+          Ideas by students. Heritage for the future.
+        </p>
+      </div>
+
+      <h3 class="category-header" style="color:#2196F3;">Student Researchers</h3>
+      <div class="grid" style="margin-top:1.5rem;">
+        <div class="card">
+          <h3>01 // Heritage Researcher</h3>
+          <p><strong>Student:</strong> CHE AHMAD IMAD ULHAQ BIN MUHAMAD TAJUDIN</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Researches Perak's history and checks historical facts using reliable sources.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>02 // Digital Developer</h3>
+          <p><strong>Student:</strong> KHAIRUL IKHWAN SYAHMI BIN HAKIMI</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Works on HTML, website design, interactive features and digital presentation.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>03 // Heritage Mapper</h3>
+          <p><strong>Student:</strong> FARAH JABEEN BINTI HAIDER ALI RAZA</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Organises heritage locations, map information and connections between sites.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>04 // Creative Storyteller</h3>
+          <p><strong>Student:</strong> YAASVINI A/P BANDIRWO</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Develops English Heritage Stories, visuals, presentations and digital storytelling.
+          </p>
+        </div>
+      </div>
+
+      <h3 class="category-header" style="color:#2196F3;margin-top:3rem;">Teacher Team</h3>
+      <div class="grid" style="margin-top:1.5rem;">
+        <div class="card">
+          <h3>TEACHER 01 // ASK TEACHER</h3>
+          <p><strong>Name:</strong> LILY IZUWANA BINTI MOHD MUSTAZA</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Guides students in computer science and digital technology, including HTML, programming, computational thinking and the development of the HERITAGE 2040 website.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>TEACHER 02 // HISTORY TEACHER</h3>
+          <p><strong>Name:</strong> RAMLAH BINTI AHMAD</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Guides historical research, checks the accuracy of historical facts, and helps students use reliable sources to understand Perak's heritage.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>TEACHER 03 // ENGLISH TEACHER</h3>
+          <p><strong>Name:</strong> ELIA EDILIYA BINTI MOHD MAGELAN</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Guides students in English communication, writing, presentation and storytelling for the English Heritage Stories section.
+          </p>
+        </div>
+      </div>
+
+      <!-- TEAM PHOTO (Placed underneath Teacher Team) -->
+      <div style="margin-top:2.5rem;text-align:center;">
+        <img 
+          src="photo_6064128080176944763_y.jpg" 
+          alt="PBL Team Heritage 2040" 
+          style="width:100%;max-width:900px;height:auto;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.3);display:block;margin:0 auto;"
+        >
+      </div>
+
+      <div class="hero-card" style="margin-top:3rem;text-align:center;">
+        <h3 style="color:#00eaff;">OUR MISSION</h3>
+        <p style="max-width:850px;margin:1rem auto 0;color:var(--text-muted);line-height:1.8;">
+          To explore, document and promote Perak's heritage while using digital technology
+          and STEM-based problem solving to imagine how it can be protected for future generations.
+        </p>
+      </div>
+
+      <h3 class="category-header" style="color:#2196F3;margin-top:3rem;">What We Created</h3>
+      <div class="grid" style="margin-top:1.5rem;">
+        <div class="card">
+          <h3>🔎 Research</h3>
+          <p style="color:var(--text-muted);">Historical research, source checking and heritage documentation.</p>
+        </div>
+        <div class="card">
+          <h3>🗺️ Interactive Map</h3>
+          <p style="color:var(--text-muted);">A digital way to explore important heritage locations across Perak.</p>
+        </div>
+        <div class="card">
+          <h3>💻 Digital Website</h3>
+          <p style="color:var(--text-muted);">A digital heritage experience combining history, technology and education.</p>
+        </div>
+        <div class="card">
+          <h3>🚀 Future Ideas</h3>
+          <p style="color:var(--text-muted);">Student proposals for protecting Perak's heritage towards 2040.</p>
+        </div>
+      </div>
+
+      <div class="hero-card" style="margin-top:3rem;text-align:center;">
+        <h3 style="color:#00eaff;">OUR CONTRIBUTION</h3>
+        <p style="color:var(--text-muted);margin-top:.7rem;">
+          Four students. Three teachers. One heritage mission.
+        </p>
+        <p style="color:#fff;font-size:1.1rem;margin-top:1rem;">
+          <em>“Protect the past. Design the future.”</em>
+        </p>
+      </div>
+    </section>
+
+    <!-- SECTION 9: Trusted Sources -->
+    <section id="sources" class="section-page">
+      <h2>Trusted Sources & References</h2>
+      <p style="color: var(--text-muted); max-width: 850px;">
+        A dedicated evidence layer for the Heritage 2040 project. Sources are grouped by purpose so visitors can see where historical facts, heritage information, location data, and future-planning context come from.
+      </p>
+
+      <div class="sources-toolbar" aria-label="Source filters">
+        <input id="sourceSearch" class="sources-search" type="search" placeholder="Search trusted resources..." oninput="filterSources()">
+        <button class="source-filter active" data-filter="all" onclick="setSourceFilter('all', this)">ALL</button>
+        <button class="source-filter" data-filter="official" onclick="setSourceFilter('official', this)">OFFICIAL</button>
+        <button class="source-filter" data-filter="international" onclick="setSourceFilter('international', this)">INTERNATIONAL</button>
+        <button class="source-filter" data-filter="data" onclick="setSourceFilter('data', this)">DATA / PLANNING</button>
+      </div>
+
+      <ul class="sources-list" id="sourcesList">
+        <li data-category="official" data-source-text="Jabatan Warisan Negara National Heritage Department Malaysia official heritage archives monuments preservation">
+          <span class="source-badge">OFFICIAL</span>
+          <a href="https://www.heritage.gov.my" target="_blank" rel="noopener noreferrer">Jabatan Warisan Negara (National Heritage Department)</a>
+          <p class="source-purpose">Primary reference for Malaysian heritage administration, conservation, heritage records, and national heritage information.</p>
+        </li>
+
+        <li data-category="international" data-source-text="UNESCO World Heritage Centre Archaeological Heritage Lenggong Valley Perak prehistoric heritage">
+          <span class="source-badge">INTERNATIONAL</span>
+          <a href="https://whc.unesco.org/en/list/1396" target="_blank" rel="noopener noreferrer">UNESCO World Heritage Centre - Archaeological Heritage of the Lenggong Valley</a>
+          <p class="source-purpose">International reference for the archaeological heritage of Lenggong Valley and its recognised World Heritage status.</p>
+        </li>
+
+        <li data-category="official" data-source-text="Perak State Government official portal Perak development heritage planning">
+          <span class="source-badge">OFFICIAL</span>
+          <a href="https://www.perak.gov.my" target="_blank" rel="noopener noreferrer">Perak State Government Official Portal</a>
+          <p class="source-purpose">Official state-level reference for Perak government information, development context, and public-sector planning.</p>
+        </li>
+
+        <li data-category="data" data-source-text="heritage 2040 verification research primary historical sources archives oral history photographs site scans data">
+          <span class="source-badge">RESEARCH METHOD</span>
+          <span style="display:block;color:var(--text-light);font-weight:600;font-size:1.05rem;">Project Evidence & Verification</span>
+          <p class="source-purpose">Project claims should be cross-checked against primary historical records, official heritage archives, site documentation, photographs, oral-history interviews, and verified datasets before being presented as established facts.</p>
+        </li>
+
+        <li data-category="data" data-source-text="future ideas smart heritage 2040 planning evidence proposals technology sustainability">
+          <span class="source-badge">FUTURE / PROPOSAL</span>
+          <span style="display:block;color:var(--text-light);font-weight:600;font-size:1.05rem;">Future Ideas Evidence Layer</span>
+          <p class="source-purpose">Future-facing concepts are labelled as proposals rather than historical facts. Their feasibility, technology claims, and planning assumptions should be supported by appropriate official or academic evidence.</p>
+        </li>
+      </ul>
+
+      <div id="sourceEmpty" style="display:none;text-align:center;color:var(--text-muted);padding:2rem;">No matching resources found.</div>
+
+      <div class="source-note">
+        <strong style="color:var(--accent-gold);">SOURCE POLICY:</strong> Official government and heritage authorities are prioritised for factual claims. UNESCO and established academic sources provide independent supporting evidence. AI-generated explanations and future concepts are not treated as primary evidence and should be checked against trusted references.
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Leaflet GIS Mapping JavaScript Library -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    let activeSourceFilter = 'all';
+
+    function setSourceFilter(filter, button) {
+      activeSourceFilter = filter;
+      document.querySelectorAll('.source-filter').forEach(btn => btn.classList.remove('active'));
+      if (button) button.classList.add('active');
+      filterSources();
+    }
+
+    function filterSources() {
+      const query = (document.getElementById('sourceSearch')?.value || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('#sourcesList li');
+      let visible = 0;
+
+      cards.forEach(card => {
+        const categoryMatch = activeSourceFilter === 'all' || card.dataset.category === activeSourceFilter;
+        const textMatch = !query || (card.dataset.sourceText || card.textContent).toLowerCase().includes(query);
+        const show = categoryMatch && textMatch;
+        card.style.display = show ? '' : 'block';
+        if (!show) card.style.display = 'none';
+        if (show) visible++;
+      });
+
+      const empty = document.getElementById('sourceEmpty');
+      if (empty) empty.style.display = visible ? 'none' : 'block';
+    }
+
+    // Web Audio Synthesizer Context
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playButtonSound() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.06);
+
+      gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.06);
+    }
+
+    function playWooshSound() {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const duration = 0.35;
+      const bufferSize = audioCtx.sampleRate * duration;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(150, audioCtx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(2800, audioCtx.currentTime + duration * 0.4);
+      filter.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + duration);
+      filter.Q.value = 2.5;
+
+      const gain = audioCtx.createGain();
+      gain.gain.setValueAtTime(0.001, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + duration * 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      noise.start();
+      noise.stop(audioCtx.currentTime + duration);
+    }
+
+    function attachSoundEffects() {
+      document.querySelectorAll('button, .nav-link, .option-btn').forEach(element => {
+        element.removeEventListener('click', playButtonSound);
+        element.addEventListener('click', () => playButtonSound());
+      });
+    }
+
+    const landmarkImages = {
+      castle: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Kellie's_Castle.jpg",
+      station: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Ipoh_Railway_Station.jpg",
+      tower: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Leaning_tower_of_teluk_intan.jpg",
+      mosque: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Ubudiah_Mosque,_circa_2023.jpg"
+    };
+
+    const heritageSites = [
+      {
+        id: "NODE-01",
+        name: "Kellie's Castle",
+        category: "Built Architectural",
+        coords: [4.4753, 101.0875],
+        image: landmarkImages.castle,
+        description: "An iconic unfinished mansion from 1915 built by William Kellie-Smith. Blending Scottish castle elements with Moorish arches, it features a 6-story tower, subterranean tunnels, and Malaysia's first proposed elevator shaft.",
+        integrity: "98.4%",
+        scanType: "3D VOLUMETRIC SCAN"
+      },
+      {
+        id: "NODE-02",
+        name: "Ipoh Railway Station",
+        category: "Built Architectural",
+        coords: [4.5971, 101.0732],
+        image: landmarkImages.station,
+        description: "Affectionately named the 'Taj Mahal of Ipoh', this grand 1917 Edwardian Baroque structure served as Perak's central transit pulse during the peak tin-mining gold rush era.",
+        integrity: "99.1%",
+        scanType: "3D PHOTOGRAMMETRY"
+      },
+      {
+        id: "NODE-03",
+        name: "Leaning Tower of Teluk Intan",
+        category: "Built Architectural",
+        coords: [4.0253, 101.0195],
+        image: landmarkImages.tower,
+        description: "Erected in 1885 as a water tower and clock chime station, this 25.5-meter pagoda-style landmark leans due to soft subterranean soil and underground river silt dynamics.",
+        integrity: "95.8%",
+        scanType: "3D GEOSPATIAL STRAIN"
+      },
+      {
+        id: "NODE-04",
+        name: "Ubudiah Mosque",
+        category: "Royal & Sultanate",
+        coords: [4.7645, 100.9507],
+        image: landmarkImages.mosque,
+        description: "Designed by Arthur Benison Hubback and completed in 1917, this masterpiece of Indo-Saracenic architecture features shimmering golden domes and Italian marble minarets in Kuala Kangsar.",
+        integrity: "99.7%",
+        scanType: "3D SPECTRAL RADIANCE"
+      },
+      {
+        id: "NODE-05",
+        name: "Istana Kenangan",
+        category: "Royal & Sultanate",
+        coords: [4.7656, 100.9525],
+        image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Istana_kenangan.jpg",
+        description: "Built in 1926 as a temporary royal residence, this architectural wonder was constructed entirely without metal nails. Its woven bamboo walls and yellow-black timber form resembles a sword in its sheath.",
+        integrity: "97.2%",
+        scanType: "3D TIMBER MESH"
+      },
+      {
+        id: "NODE-06",
+        name: "Taiping Lake Gardens",
+        category: "Natural Environmental",
+        coords: [4.8539, 100.7486],
+        image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Taiping_Lake_Gardens.jpg",
+        description: "Established in 1880 atop an abandoned tin mine, Malaysia's oldest public park covers 64 hectares with iconic century-old Rain Trees whose massive branches arch gracefully into the lake waters.",
+        integrity: "100.0%",
+        scanType: "3D BOTANIC SENSORY"
+      },
+      {
+        id: "NODE-07",
+        name: "Perak River Basin",
+        category: "Natural Environmental",
+        coords: [4.7735, 100.9412],
+        image: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Perak_River_Kuala_Kangsar.jpg",
+        description: "Spanning 400 km as Peninsular Malaysia's second-longest river, this historical lifeline was the cradle of Perak's ancient royal dynasties, trade networks, and rich riparian biodiversity.",
+        integrity: "96.5%",
+        scanType: "3D HYDRO-SURFACE"
+      }
+    ];
+
+    let map;
+    let markers = [];
+
+    function initMap() {
+      map = L.map('map-container').setView([4.55, 100.95], 9);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(map);
+
+      heritageSites.forEach((site, index) => {
+        const marker = L.marker(site.coords).addTo(map);
+        marker.on('click', () => { focusSite(index); });
+        markers.push(marker);
+      });
+    }
+
+    function updateSidePanel(index) {
+      const site = heritageSites[index];
+      const panel = document.getElementById('side-panel');
+
+      panel.style.opacity = '0';
+      panel.style.transform = 'translateY(10px)';
+      
+      setTimeout(() => {
+        panel.innerHTML = `
+          <div class="hud-header">
+            <span>SYSTEM // ${site.id}</span>
+            <span>LIVE 3D RECON</span>
+          </div>
+          <div class="hud-title">${site.name}</div>
+          <div><span class="hud-category">${site.category}</span></div>
+          <img src="${site.image}" class="side-panel-img" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1518998053901-5348d3961a04?auto=format&fit=crop&w=400&q=80';" alt="${site.name}">
+          <div class="hud-description">
+            ${site.description}
+          </div>
+          <div class="hud-telemetry">
+            <div>STRUCTURAL: <span>${site.integrity}</span></div>
+            <div>SCAN: <span>${site.scanType}</span></div>
+          </div>
+        `;
+        panel.style.transition = 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+        panel.style.opacity = '1';
+        panel.style.transform = 'translateY(0)';
+      }, 150);
+    }
+
+    function focusSite(index) {
+      if (!map) return;
+      playWooshSound();
+      const site = heritageSites[index];
+      map.flyTo(site.coords, 13, { duration: 1.2 });
+      updateSidePanel(index);
+    }
+
+    function resetMapView() {
+      if (!map) return;
+      playWooshSound();
+      map.flyTo([4.55, 100.95], 9, { duration: 1.2 });
+      
+      const panel = document.getElementById('side-panel');
+      panel.innerHTML = `
+        <div class="panel-placeholder">
+          <div style="font-size: 2.5rem; color: var(--accent-cyan); opacity: 0.7;">📡</div>
+          <h3 style="color: var(--accent-cyan); margin-top: 0.5rem; font-weight: 600;">TELEMETRY STANDBY</h3>
+          <p>Select a heritage marker on the map to stream historical archives and structural analysis.</p>
+        </div>
+      `;
+    }
+
+    // Interactive 3D WebGL Artifact Studio Engine
+    let scene, camera, renderer;
+    let artifactGroup = null;
+    let isMouseDown = false;
+    let mousePos = { x: 0, y: 0 };
+    let rotationDeg = { x: 0, y: 0 };
+    let autoRotate = true;
+    let pointLight, spotLight;
+    let raycaster = new THREE.Raycaster();
+    let mouseVector = new THREE.Vector2();
+
+    const artifactData = {
+      labu: {
+        name: "Labu Sayong 3D Pottery",
+        category: "TRADITIONAL CRAFT & HERITAGE",
+        age: "CENTURIES OLD",
+        material: "EARTHENWARE CLAY",
+        origin: "SAYONG, KUALA KANGSAR",
+        mesh: "3D DIGITAL TWIN",
+        embedUrl: "https://sketchfab.com/models/ce5c9dd5cac644029ef55a7da02ad8c4/embed?autostart=1&ui_theme=dark&ui_controls=1",
+        desc: "Iconic gourd-shaped clay jar from Sayong, Perak. Fired and finished with paddy husks to produce its signature charcoal sheen and natural cooling properties."
+      },
+      kellies_castle: {
+        name: "Kellie's Castle",
+        category: "BUILT ARCHITECTURAL",
+        age: "BUILT 1915",
+        material: "BRICK, MARBLE & STONE",
+        origin: "BATU GAJAH, PERAK",
+        mesh: "3D DIGITAL TWIN",
+        embedUrl: "https://sketchfab.com/models/63e12c72046a4abc87bb82d45045f9f4/embed?autostart=1&ui_theme=dark&ui_controls=1",
+        desc: "An iconic unfinished mansion built by Scottish planter William Kellie-Smith, blending Scottish, Moorish, and Indian architectural styles."
+      },
+      royal_museum: {
+        name: "Perak Royal Museum (Istana Kenangan)",
+        category: "ROYAL ARCHITECTURE",
+        age: "BUILT 1926",
+        material: "WOOD & BAMBOO (NO NAILS)",
+        origin: "KUALA KANGSAR, PERAK",
+        mesh: "3D DIGITAL TWIN",
+        embedUrl: "https://sketchfab.com/models/6d539795beb24d94a7715e91d1469863/embed?autostart=1&ui_theme=dark&ui_controls=1",
+        desc: "Architectural masterpiece built without a single metal nail. Originally built as a temporary royal palace, it now serves as a museum celebrating royal Perak sultanate heritage."
+      },
+      teluk_intan_tower: {
+        name: "Leaning Tower of Teluk Intan",
+        category: "BUILT ARCHITECTURAL",
+        age: "BUILT 1885",
+        material: "BRICK & TIMBER",
+        origin: "TELUK INTAN, PERAK",
+        mesh: "3D DIGITAL TWIN",
+        embedUrl: "https://sketchfab.com/models/7bee771dc60d43799b6a586273b3f86f/embed?autostart=1&ui_theme=dark&ui_controls=1",
+        desc: "Historic 25.5-meter pagoda-style clock tower that leans due to soft subterranean soil dynamics and underground river silt sediment shifts."
+      }
+    };
+
+    function init3DStudio() {
+      const canvas = document.getElementById('webglArCanvas');
+      const container = canvas.parentElement;
+
+      scene = new THREE.Scene();
+
+      const w = container.clientWidth || 800;
+      const h = container.clientHeight || 480;
+
+      camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+      camera.position.set(0, 3, 16);
+
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+      renderer.setSize(w, h);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+      scene.add(ambientLight);
+
+      spotLight = new THREE.SpotLight(0x00f0ff, 2.5);
+      spotLight.position.set(15, 25, 20);
+      spotLight.angle = Math.PI / 4;
+      scene.add(spotLight);
+
+      pointLight = new THREE.PointLight(0xffb700, 2, 50);
+      pointLight.position.set(-10, -5, -5);
+      scene.add(pointLight);
+
+      const pedestalGeom = new THREE.CylinderGeometry(6, 6.5, 0.4, 32);
+      const pedestalMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8, roughness: 0.2 });
+      const pedestal = new THREE.Mesh(pedestalGeom, pedestalMat);
+      pedestal.position.y = -3.2;
+      scene.add(pedestal);
+
+      const pedestalRing = new THREE.RingGeometry(6.1, 6.3, 64);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, side: THREE.DoubleSide });
+      const ringMesh = new THREE.Mesh(pedestalRing, ringMat);
+      ringMesh.rotation.x = Math.PI / 2;
+      ringMesh.position.y = -3.0;
+      scene.add(ringMesh);
+
+      canvas.addEventListener('mousedown', (e) => {
+        isMouseDown = true;
+        mousePos = { x: e.clientX, y: e.clientY };
+      });
+
+      window.addEventListener('mouseup', () => { isMouseDown = false; });
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (!isMouseDown || !artifactGroup) return;
+        const deltaX = e.clientX - mousePos.x;
+        const deltaY = e.clientY - mousePos.y;
+
+        artifactGroup.rotation.y += deltaX * 0.008;
+        artifactGroup.rotation.x += deltaY * 0.008;
+
+        rotationDeg.y = Math.round((artifactGroup.rotation.y * 180 / Math.PI) % 360);
+        rotationDeg.x = Math.round((artifactGroup.rotation.x * 180 / Math.PI) % 360);
+
+        mousePos = { x: e.clientX, y: e.clientY };
+      });
+
+      canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        camera.position.z += e.deltaY * 0.015;
+        camera.position.z = Math.max(7, Math.min(28, camera.position.z));
+      }, { passive: false });
+
+      canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouseVector.x = ((e.clientX - rect.left) / canvas.clientWidth) * 2 - 1;
+        mouseVector.y = -((e.clientY - rect.top) / canvas.clientHeight) * 2 + 1;
+
+        raycaster.setFromCamera(mouseVector, camera);
+        if (artifactGroup) {
+          const intersects = raycaster.intersectObjects(artifactGroup.children, true);
+          if (intersects.length > 0) {
+            playButtonSound();
+            const clickedMesh = intersects[0].object;
+            if (clickedMesh.material && clickedMesh.material.color) {
+              const originalColor = clickedMesh.material.color.getHex();
+              clickedMesh.material.color.setHex(0x00f0ff);
+              setTimeout(() => { clickedMesh.material.color.setHex(originalColor); }, 400);
+            }
+          }
+        }
+      });
+
+      window.addEventListener('resize', resize3DCanvas);
+      load3DArtifact('labu');
+      animate3D();
+    }
+
+    function resize3DCanvas() {
+      const canvas = document.getElementById('webglArCanvas');
+      if (!canvas || !renderer) return;
+      const container = canvas.parentElement;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      if (w > 0 && h > 0) {
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      }
+    }
+
+    function toggleAutoRotate() {
+      autoRotate = !autoRotate;
+      playWooshSound();
+    }
+
+    function load3DArtifact(key) {
+      if (!scene) return;
+      playWooshSound();
+
+      const canvasEl = document.getElementById('webglArCanvas');
+      const iframeEl = document.getElementById('labuSayongIframe');
+
+      const meta = artifactData[key] || artifactData.labu;
+
+      if (meta.embedUrl) {
+        if (iframeEl.src !== meta.embedUrl) {
+          iframeEl.src = meta.embedUrl;
+        }
+        canvasEl.style.display = 'none';
+        iframeEl.style.display = 'block';
+      } else {
+        iframeEl.style.display = 'none';
+        canvasEl.style.display = 'block';
+      }
+
+      if (artifactGroup) {
+        scene.remove(artifactGroup);
+      }
+
+      artifactGroup = new THREE.Group();
+
+      document.getElementById('hudArtifactTitle').innerText = meta.name;
+      document.getElementById('hudArtifactCategory').innerText = meta.category;
+      document.getElementById('hudArtifactDesc').innerText = meta.desc;
+      document.getElementById('hudArtifactAge').innerText = meta.age;
+      document.getElementById('hudArtifactMat').innerText = meta.material;
+      document.getElementById('hudArtifactLoc').innerText = meta.origin;
+      document.getElementById('hudArtifactMesh').innerText = meta.mesh;
+      document.getElementById('arLocationName').innerText = meta.name.toUpperCase();
+
+      artifactGroup.scale.set(0.1, 0.1, 0.1);
+      scene.add(artifactGroup);
+
+      let scaleProgress = 0.1;
+      const animateEntry = () => {
+        if (scaleProgress < 1.0) {
+          scaleProgress += 0.06;
+          artifactGroup.scale.set(scaleProgress, scaleProgress, scaleProgress);
+          requestAnimationFrame(animateEntry);
+        }
+      };
+      animateEntry();
+    }
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+
+      if (artifactGroup && autoRotate && !isMouseDown) {
+        artifactGroup.rotation.y += 0.008;
+        rotationDeg.y = Math.round((artifactGroup.rotation.y * 180 / Math.PI) % 360);
+      }
+
+      const coordsHud = document.getElementById('arCoordsHud');
+      if (coordsHud) {
+        coordsHud.innerText = `ROTATION: X: ${rotationDeg.x}° | Y: ${rotationDeg.y}°`;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    document.addEventListener('click', (event) => {
+      if (window.innerWidth > 680) return;
+
+      const nav = document.querySelector('nav');
+      const menu = document.querySelector('.nav-links');
+      const button = document.querySelector('.mobile-menu-toggle');
+
+      if (nav && menu && button &&
+          menu.classList.contains('mobile-open') &&
+          !nav.contains(event.target)) {
+        closeMobileNav();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      attachSoundEffects();
+      loadQuizQuestion();
+      initMap();
+      init3DStudio();
+    });
+
+    function toggleMobileNav(button) {
+      const navLinks = document.querySelector('.nav-links');
+      if (!navLinks) return;
+
+      const isOpen = navLinks.classList.toggle('mobile-open');
+      button.setAttribute('aria-expanded', String(isOpen));
+      button.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+      button.textContent = isOpen ? '✕' : '☰';
+      document.body.classList.toggle('mobile-nav-open', isOpen);
+    }
+
+    function closeMobileNav() {
+      const navLinks = document.querySelector('.nav-links');
+      const button = document.querySelector('.mobile-menu-toggle');
+      if (!navLinks || !button) return;
+
+      navLinks.classList.remove('mobile-open');
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-label', 'Open navigation menu');
+      button.textContent = '☰';
+      document.body.classList.remove('mobile-nav-open');
+    }
+
+    function switchTab(event, tabId) {
+      document.querySelectorAll('.section-page').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+      
+      const targetSection = document.getElementById(tabId);
+      if (targetSection) {
+        targetSection.classList.add('active');
+      }
+
+      if (event) {
+        event.target.classList.add('active');
+      } else {
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+          if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(tabId)) {
+            link.classList.add('active');
+          }
+        });
+      }
+
+      if (window.innerWidth <= 680) {
+        closeMobileNav();
+      }
+
+      if (tabId === 'map' && map) {
+        setTimeout(() => { map.invalidateSize(); }, 200);
+      }
+
+      if (tabId === 'tech') {
+        setTimeout(() => {
+          resize3DCanvas();
+        }, 100);
+      }
+
+      // Quiz music plays only while the Heritage Quiz section is open.
+      if (tabId === 'quiz') {
+        startQuizMusic();
+      } else {
+        stopQuizMusic();
+      }
+    }
+
+    const bgAudio = document.getElementById('bgMusic');
+    const audioBtn = document.getElementById('audioToggle');
+
+    function toggleAudio() {
+      if (bgAudio.paused) {
+        bgAudio.play().then(() => {
+          audioBtn.innerText = '⏸ Pause Music';
+        }).catch(err => console.log('Autoplay:', err));
+      } else {
+        bgAudio.pause();
+        audioBtn.innerText = '🎵 Sound Synth';
+      }
+    }
+
+    const quizMusic = document.getElementById('quizMusic');
+    const wrongAnswerSound = document.getElementById('wrongAnswerSound');
+    const rightAnswerSound = document.getElementById('rightAnswerSound');
+
+    function startQuizMusic() {
+      if (!quizMusic) return;
+      quizMusic.volume = 0.32;
+      quizMusic.play().catch(err => console.log('Quiz music autoplay:', err));
+    }
+
+    function stopQuizMusic() {
+      if (!quizMusic) return;
+      quizMusic.pause();
+      quizMusic.currentTime = 0;
+    }
+
+    function playQuizAnswerSound(isCorrect) {
+      const sound = isCorrect ? rightAnswerSound : wrongAnswerSound;
+      if (!sound) return;
+      sound.currentTime = 0;
+      sound.volume = 0.55;
+      sound.play().catch(err => console.log('Answer sound:', err));
+    }
+
+    const quizData = [
+      { question: "1. Which Perak landmark was built by William Kellie-Smith and blends Scottish castle elements with Moorish arches?", options: ["Kellie's Castle", "Ipoh Railway Station", "Ubudiah Mosque", "Istana Kenangan"], answer: 0 },
+      { question: "2. What nickname is given to Ipoh Railway Station in the Heritage Gallery?", options: ["The Royal Gateway of Perak", "The Taj Mahal of Ipoh", "The Golden Palace of Ipoh", "The Heritage Gate of Perak"], answer: 1 },
+      { question: "3. What was the Leaning Tower of Teluk Intan originally erected as in 1885?", options: ["A railway station", "A royal palace", "A water tower and clock chime station", "A museum"], answer: 2 },
+      { question: "4. Who designed Ubudiah Mosque according to the Interactive Map?", options: ["Arthur Benison Hubback", "William Kellie-Smith", "J. W. W. Birch", "Edmund Valentine Teale"], answer: 0 },
+      { question: "5. Which heritage site was built in 1926 as a temporary royal residence?", options: ["Taiping Lake Gardens", "Ipoh Railway Station", "Istana Kenangan", "Leaning Tower of Teluk Intan"], answer: 2 },
+      { question: "6. Which site was established in 1880 on top of an abandoned tin mine?", options: ["Taiping Lake Gardens", "Perak River Basin", "Kellie's Castle", "Ubudiah Mosque"], answer: 0 },
+      { question: "7. What architectural style is Ubudiah Mosque described as representing?", options: ["Tudor Gothic", "Indo-Saracenic", "Art Deco", "Neo-Classical"], answer: 1 },
+      { question: "8. Which heritage landmark served as Perak's central transit hub during the peak tin-mining gold rush era?", options: ["Kellie's Castle", "Ipoh Railway Station", "Istana Kenangan", "Taiping Lake Gardens"], answer: 1 },
+      { question: "9. What makes Istana Kenangan especially distinctive as a historic building?", options: ["It was built entirely without metal nails", "It was built entirely from marble", "It was the first railway station in Perak", "It was built as a tin mine"], answer: 0 },
+      { question: "10. According to the Interactive Map, what important historical role did the Perak River Basin play?", options: ["It was the site of Malaysia's first railway station", "It was the cradle of Perak's ancient royal dynasties and trade networks", "It was built as a temporary royal palace", "It was created as a public park in 1880"], answer: 1 }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    function loadQuizQuestion() {
+      const q = quizData[currentQuestion];
+      const progress = document.getElementById('quiz-progress');
+      if (progress) progress.innerText = `QUESTION ${currentQuestion + 1} / ${quizData.length}`;
+      document.getElementById('quiz-question').innerText = q.question;
+      const optionsContainer = document.getElementById('quiz-options');
+      optionsContainer.innerHTML = '';
+      q.options.forEach((opt, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(index);
+        optionsContainer.appendChild(btn);
+      });
+      attachSoundEffects();
+    }
+
+    function checkAnswer(selectedIndex) {
+      const isCorrect = selectedIndex === quizData[currentQuestion].answer;
+      playQuizAnswerSound(isCorrect);
+      if (isCorrect) score++;
+      currentQuestion++;
+      if (currentQuestion < quizData.length) loadQuizQuestion();
+      else showQuizResults();
+    }
+
+    function showQuizResults() {
+      stopQuizMusic();
+      document.getElementById('quiz-container').style.display = 'none';
+      const resultBox = document.getElementById('quiz-result');
+      resultBox.style.display = 'block';
+      document.getElementById('score-text').innerText = `SCORE: ${score} / ${quizData.length} CORRECT`;
+    }
+
+    function resetQuiz() {
+      currentQuestion = 0;
+      score = 0;
+      startQuizMusic();
+      document.getElementById('quiz-container').style.display = 'block';
+      document.getElementById('quiz-result').style.display = 'none';
+      loadQuizQuestion();
+    }
+
+    function toggleFutureCard(button) {
+      const detail = button.nextElementSibling;
+      const open = detail.classList.toggle('open');
+      button.innerHTML = open ? 'CLOSE <span>−</span>' : 'EXPLORE <span>+</span>';
+    }
+
+    function generateFutureIdea() {
+      const heritage = document.getElementById('fiHeritage').value;
+      const goal = document.getElementById('fiGoal').value;
+      const solution = document.getElementById('fiSolution').value;
+      const title = heritage + ' + ' + solution;
+      const resultText = 'Create a practical ' + solution.toLowerCase() + ' concept for ' + heritage.toLowerCase() + ' to help ' + goal.toLowerCase() + ' Perak\'s heritage. The idea should use reliable information, clear documentation and meaningful community or student participation.';
+      document.getElementById('fiResultTitle').textContent = title;
+      document.getElementById('fiResultText').textContent = resultText;
+      const result = document.getElementById('fiResult');
+      result.classList.add('show');
+      result.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+
+  </script>
+</body>
+</html>
