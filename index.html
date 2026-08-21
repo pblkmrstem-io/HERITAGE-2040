@@ -393,21 +393,30 @@
       }
     }
 
-
-    /* Brighter interactive heritage landmarks */
-    .heritage-map-marker {
-      width: 24px; height: 24px; border-radius: 50%;
-      background: radial-gradient(circle, #ffffff 0 18%, #00f0ff 25% 55%, rgba(0,240,255,.25) 56% 100%);
+    /* Bright heritage markers - added only for map visibility */
+    .heritage-marker-bright {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #00f0ff;
       border: 2px solid #ffffff;
-      box-shadow: 0 0 10px #00f0ff, 0 0 24px rgba(0,240,255,.85), 0 0 42px rgba(0,240,255,.5);
-      animation: heritagePulse 1.8s ease-in-out infinite;
+      box-shadow: 0 0 8px #00f0ff, 0 0 18px #00f0ff, 0 0 30px rgba(0, 240, 255, 0.9);
+      position: relative;
     }
-    @keyframes heritagePulse {
-      0%,100% { transform: scale(.9); opacity:.9; }
-      50% { transform: scale(1.18); opacity:1; }
+    .heritage-marker-bright::after {
+      content: '';
+      position: absolute;
+      inset: -7px;
+      border: 2px solid rgba(0, 240, 255, 0.55);
+      border-radius: 50%;
+      animation: heritageMarkerPulse 1.8s ease-out infinite;
     }
-    .leaflet-marker-icon.heritage-marker-glow { filter: drop-shadow(0 0 7px #00f0ff) drop-shadow(0 0 14px rgba(255,255,255,.7)); }
-    #map-container .leaflet-tile-pane { filter: brightness(1.16) contrast(1.08); }
+    @keyframes heritageMarkerPulse {
+      0% { transform: scale(0.75); opacity: 0.9; }
+      70% { transform: scale(1.35); opacity: 0; }
+      100% { transform: scale(1.35); opacity: 0; }
+    }
+
     #map-container {
       flex: 1.3;
       height: 540px;
@@ -1269,6 +1278,7 @@
       <li><a class="nav-link" onclick="switchTab(event, 'showcase')">Student Showcase</a></li>
       <li><a class="nav-link" onclick="switchTab(event, 'sources')">Trusted Sources</a></li>
     </ul>
+    <button class="btn" id="audioToggle" onclick="toggleAudio()">🎵 Play Music</button>
   </nav>
 
   <audio id="bgMusic" loop preload="auto">
@@ -1905,6 +1915,10 @@
       <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Official archives, state heritage registries, and research documentation.</p>
       <ul class="sources-list">
         <li>
+          <a href="https://anyflip.com/kwqrz/gbds/basic" target="_blank">Buku Teks Sejarah Tingkatan 2 KSSM</a>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">Official KPM History textbook reference for the historical and heritage content presented in HERITAGE 2040.</p>
+        </li>
+        <li>
           <a href="https://www.heritage.gov.my" target="_blank">Jabatan Warisan Negara (National Heritage Department)</a>
           <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">Official state records and monument preservation guidelines for Malaysia.</p>
         </li>
@@ -1917,14 +1931,7 @@
           <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">State development framework and Smart Perak blueprint.</p>
         </li>
       </ul>
-   <div class="resource-card">
-  <div>
-    <span class="badge">OFFICIAL KPM TEXTBOOK</span>
-    <h3 class="card-title">Buku Teks Sejarah Tingkatan 2 KSSM</h3>
-  </div>
-  <p class="card-desc">Official Ministry of Education (KPM) textbook reference supporting the historical facts and heritage content presented in HERITAGE 2040.</p>
-</div>
- </section>
+    </section>
 
   </div>
 
@@ -2089,16 +2096,13 @@
       }).addTo(map);
 
       heritageSites.forEach((site, index) => {
-        const marker = L.marker(site.coords, {
-          icon: L.divIcon({
-            className: 'heritage-marker-glow',
-            html: '<div class=\"heritage-map-marker\"></div>',
-            iconSize: [24, 24],
-            iconAnchor: [12, 12]
-          }),
-          title: site.name,
-          alt: site.name
-        }).addTo(map);
+        const brightIcon = L.divIcon({
+          className: '',
+          html: '<div class="heritage-marker-bright"></div>',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9]
+        });
+        const marker = L.marker(site.coords, { icon: brightIcon }).addTo(map);
         marker.on('click', () => { focusSite(index); });
         markers.push(marker);
       });
