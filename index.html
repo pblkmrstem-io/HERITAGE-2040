@@ -400,10 +400,6 @@
       animation: heritageAreaPulse 1.8s ease-in-out infinite;
     }
 
-    .heritage-area-inner-glow {
-      filter: drop-shadow(0 0 6px rgba(143, 255, 255, 0.9));
-    }
-
     @keyframes heritageAreaPulse {
       0%, 100% { opacity: 0.75; }
       50% { opacity: 1; }
@@ -2593,13 +2589,14 @@
       playWooshSound();
       const site = heritageSites[index];
 
-      // Remove the previous highlighted heritage area.
+      // Remove ONLY the previous selected area's light.
       if (selectedHeritageArea) {
         map.removeLayer(selectedHeritageArea);
         selectedHeritageArea = null;
       }
 
-      // Light up the selected location with a glowing area underneath the marker.
+      // Keep the marker's existing blue glow.
+      // Only add the area light after the user clicks the marker.
       selectedHeritageArea = L.circle(site.coords, {
         radius: 700,
         color: '#00f0ff',
@@ -2608,17 +2605,6 @@
         fillColor: '#00f0ff',
         fillOpacity: 0.18,
         className: 'heritage-area-glow'
-      }).addTo(map);
-
-      // Add a second, softer ring to make the selected area feel illuminated.
-      L.circle(site.coords, {
-        radius: 420,
-        color: '#8fffff',
-        weight: 1,
-        opacity: 0.65,
-        fillColor: '#8fffff',
-        fillOpacity: 0.10,
-        className: 'heritage-area-inner-glow'
       }).addTo(map);
 
       map.flyTo(site.coords, 13, { duration: 1.2 });
