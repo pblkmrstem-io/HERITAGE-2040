@@ -1403,7 +1403,7 @@
     <button class="btn" id="audioToggle" onclick="toggleAudio()">🎵 Sound Synth</button>
   </nav>
 
-  <audio id="bgMusic" loop preload="auto">
+  <audio id="bgMusic" loop>
     <source src="background-music.mp3" type="audio/mpeg">
   </audio>
   <!-- Heritage Quiz audio -->
@@ -2140,20 +2140,6 @@
 #future-ideas .fi-result h4{font-size:1.15rem;margin-bottom:9px}
 #future-ideas .fi-result p{max-width:760px;margin:auto;color:#aec1cb;line-height:1.75;font-size:.84rem}
 @media(max-width:760px){#future-ideas .fi-grid,#future-ideas .fi-controls{grid-template-columns:1fr}#future-ideas .fi-card p{min-height:auto}#future-ideas .fi-wrap{padding-left:4vw;padding-right:4vw}}
-
-    /* HERITAGE 2040 — requested map landmark visibility enhancement only */
-    #map-container .leaflet-marker-icon {
-      filter: brightness(1.65) saturate(1.35)
-              drop-shadow(0 0 7px rgba(0, 240, 255, 0.95))
-              drop-shadow(0 0 14px rgba(0, 240, 255, 0.55));
-      transition: filter 0.2s ease, transform 0.2s ease;
-    }
-
-    #map-container .leaflet-marker-icon:hover {
-      filter: brightness(2) saturate(1.5)
-              drop-shadow(0 0 10px rgba(0, 240, 255, 1))
-              drop-shadow(0 0 20px rgba(0, 240, 255, 0.75));
-    }
 </style>
 
 <!-- SECTION 7: Interactive Heritage Quiz -->
@@ -2315,17 +2301,16 @@
       </div>
 
       <ul class="sources-list" id="sourcesList">
+        <li data-category="official" data-source-text="Buku Teks Sejarah Tingkatan 2 KSSM Kementerian Pendidikan Malaysia Perak Kesultanan Melayu Melaka warisan sejarah">
+          <span class="source-badge">OFFICIAL KPM TEXTBOOK</span>
+          <span style="display:block;color:var(--text-light);font-weight:600;font-size:1.05rem;">Buku Teks Sejarah Tingkatan 2 KSSM</span>
+          <p class="source-purpose">Official Ministry of Education (KPM) reference for the historical context of the Kesultanan Melayu Melaka, Kesultanan Perak, and related heritage topics covered in the project.</p>
+        </li>
+
         <li data-category="official" data-source-text="Jabatan Warisan Negara National Heritage Department Malaysia official heritage archives monuments preservation">
           <span class="source-badge">OFFICIAL</span>
           <a href="https://www.heritage.gov.my" target="_blank" rel="noopener noreferrer">Jabatan Warisan Negara (National Heritage Department)</a>
           <p class="source-purpose">Primary reference for Malaysian heritage administration, conservation, heritage records, and national heritage information.</p>
-        </li>
-
-
-        <li data-category="official" data-source-text="KPM Buku Teks Sejarah Tingkatan 2 KSSM Ministry of Education Malaysia history textbook Perak Kesultanan Melayu Melaka heritage">
-          <span class="source-badge">OFFICIAL KPM TEXTBOOK</span>
-          <span style="display:block;color:var(--text-light);font-weight:600;font-size:1.05rem;">Buku Teks Sejarah Tingkatan 2 KSSM</span>
-          <p class="source-purpose">Official Ministry of Education (KPM) Form 2 History textbook reference for the historical context of the Malay sultanates, including Perak and its heritage.</p>
         </li>
 
         <li data-category="international" data-source-text="UNESCO World Heritage Centre Archaeological Heritage Lenggong Valley Perak prehistoric heritage">
