@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Perak Heritage 2040 | Interactive 3D Artifact & GIS Portal</title>
+  <title>Perak Heritage 2040 | Complete Interactive Heritage Portal</title>
   
   <!-- Fonts: Outfit (UI) & Space Mono (Telemetry/HUD) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -393,30 +393,6 @@
       }
     }
 
-    /* Bright heritage markers - added only for map visibility */
-    .heritage-marker-bright {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #00f0ff;
-      border: 2px solid #ffffff;
-      box-shadow: 0 0 8px #00f0ff, 0 0 18px #00f0ff, 0 0 30px rgba(0, 240, 255, 0.9);
-      position: relative;
-    }
-    .heritage-marker-bright::after {
-      content: '';
-      position: absolute;
-      inset: -7px;
-      border: 2px solid rgba(0, 240, 255, 0.55);
-      border-radius: 50%;
-      animation: heritageMarkerPulse 1.8s ease-out infinite;
-    }
-    @keyframes heritageMarkerPulse {
-      0% { transform: scale(0.75); opacity: 0.9; }
-      70% { transform: scale(1.35); opacity: 0; }
-      100% { transform: scale(1.35); opacity: 0; }
-    }
-
     #map-container {
       flex: 1.3;
       height: 540px;
@@ -704,6 +680,14 @@
       margin: 2rem auto;
     }
 
+    .quiz-progress {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--accent-gold);
+      letter-spacing: 1px;
+      margin-bottom: 0.7rem;
+    }
+
     .quiz-options {
       display: flex;
       flex-direction: column;
@@ -731,10 +715,49 @@
       transform: translateX(4px);
     }
 
+    .sources-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin: 1.2rem 0 1.5rem;
+    }
+
+    .sources-search {
+      flex: 1 1 280px;
+      min-width: 220px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--card-border);
+      color: var(--text-light);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1rem;
+      outline: none;
+    }
+
+    .sources-search:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(0,240,255,0.1);
+    }
+
+    .source-filter {
+      padding: 0.7rem 0.9rem;
+      border: 1px solid var(--card-border);
+      background: rgba(0,240,255,0.04);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .source-filter.active, .source-filter:hover {
+      color: var(--accent-cyan);
+      border-color: var(--accent-cyan);
+      background: rgba(0,240,255,0.08);
+    }
+
     .sources-list {
       list-style: none;
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
       gap: 1.2rem;
     }
 
@@ -744,22 +767,53 @@
       border: 1px solid var(--card-border);
       padding: 1.4rem;
       border-radius: var(--radius-lg);
-      transition: border-color 0.3s ease;
+      transition: all 0.3s ease;
     }
 
     .sources-list li:hover {
       border-color: var(--accent-cyan);
+      transform: translateY(-3px);
     }
 
     .sources-list a {
       color: var(--accent-cyan);
       text-decoration: none;
       font-weight: 600;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
     }
 
     .sources-list a:hover {
       text-decoration: underline;
+    }
+
+    .source-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 1px;
+      padding: 0.25rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,183,0,0.35);
+      color: var(--accent-gold);
+      background: rgba(255,183,0,0.07);
+      margin-bottom: 0.7rem;
+    }
+
+    .source-purpose {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-top: 0.45rem;
+      line-height: 1.55;
+    }
+
+    .source-note {
+      margin-top: 1.5rem;
+      padding: 1rem 1.2rem;
+      border-left: 3px solid var(--accent-gold);
+      background: rgba(255,183,0,0.04);
+      color: var(--text-muted);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.9rem;
     }
 
     /* UNIFIED CYBERPUNK HUD STYLES FOR PBL-KMR */
@@ -1217,26 +1271,93 @@
       }
     }
 
+
+    /* MOBILE NAVIGATION FIX */
+    .mobile-menu-toggle {
+      display: none;
+      border: 1px solid var(--accent-cyan);
+      background: rgba(5, 15, 25, 0.92);
+      color: var(--accent-cyan);
+      font: inherit;
+      font-size: 1rem;
+      padding: 0.45rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      line-height: 1;
+      z-index: 1001;
+    }
+
+    .mobile-menu-toggle:focus-visible {
+      outline: 2px solid var(--accent-cyan);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 680px) {
+      nav {
+        position: relative;
+      }
+
+      .mobile-menu-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: calc(100% + 0.35rem);
+        left: 0.7rem;
+        right: 0.7rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.2rem;
+        padding: 0.5rem;
+        max-height: min(70vh, 520px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        background: rgba(5, 12, 20, 0.98);
+        border: 1px solid var(--accent-cyan);
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        z-index: 1000;
+      }
+
+      .nav-links.mobile-open {
+        display: flex;
+      }
+
+      .nav-link {
+        display: block;
+        width: 100%;
+        min-height: 44px;
+        padding: 0.7rem 0.8rem;
+        font-size: 0.78rem;
+        text-align: left;
+        box-sizing: border-box;
+        touch-action: manipulation;
+      }
+
+      .nav-link:hover,
+      .nav-link:focus-visible {
+        background: rgba(0, 255, 255, 0.08);
+      }
+
+      /* Keep the header usable while the menu is open. */
+      body.mobile-nav-open {
+        overflow: hidden;
+      }
+    }
+
     /* MOBILE RESPONSIVENESS */
     @media (max-width: 680px) {
       nav {
         padding: 0.55rem 0.7rem;
       }
 
-      .nav-links {
-        justify-content: flex-start;
-        overflow-x: auto;
-        scrollbar-width: none;
-      }
-
-      .nav-links::-webkit-scrollbar {
-        display: none;
-      }
-
-      .nav-link {
-        font-size: 0.66rem;
-        padding: 0.4rem 0.5rem;
-      }
+      /* Mobile navigation is handled by the hamburger menu above. */
 
       nav > .btn {
         display: none;
@@ -1271,6 +1392,7 @@
       <li><a class="nav-link active" onclick="switchTab(event, 'home-2040')">Heritage 2040</a></li>
       <li><a class="nav-link" onclick="switchTab(event, 'gallery')">Gallery</a></li>
       <li><a class="nav-link" onclick="switchTab(event, 'map')">Interactive Map</a></li>
+      <li><a class="nav-link" onclick="switchTab(event, 'english-story')">English Heritage Story</a></li>
       <li><a class="nav-link" onclick="switchTab(event, 'tech')">Heritage Technology Lab</a></li>
       <li><a class="nav-link" onclick="switchTab(event, 'pbl-stem')">PBL-KMR STEM Journey</a></li>
       <li><a class="nav-link" onclick="switchTab(event, 'future-ideas')">Future Ideas</a></li>
@@ -1278,12 +1400,23 @@
       <li><a class="nav-link" onclick="switchTab(event, 'showcase')">Student Showcase</a></li>
       <li><a class="nav-link" onclick="switchTab(event, 'sources')">Trusted Sources</a></li>
     </ul>
-    <button class="btn" id="audioToggle" onclick="toggleAudio()">🎵 Play Music</button>
+    <button class="btn" id="audioToggle" onclick="toggleAudio()">🎵 Sound Synth</button>
   </nav>
 
   <audio id="bgMusic" loop preload="auto">
     <source src="background-music.mp3" type="audio/mpeg">
   </audio>
+  <!-- Heritage Quiz audio -->
+  <audio id="quizMusic" loop preload="auto">
+    <source src="Iron_Hinge.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="wrongAnswerSound" preload="auto">
+    <source src="eritnhut1992-buzzer-or-wrong-answer-20582.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="rightAnswerSound" preload="auto">
+    <source src="u_ntlsbh1e81-jawab-soal-519748.mp3" type="audio/mpeg">
+  </audio>
+
 
   <div class="container">
     
@@ -1307,7 +1440,7 @@
             <img src="6.jpg" alt="Immersive VR & Spatial Computing Artifact Experience">
           </div>
           <div class="idea-content">
-            <h3>08 // Immersive VR & Spatial Computing</h3>
+            <h3>01 // Immersive VR & Spatial Computing</h3>
             <p style="color: var(--text-muted); font-size: 0.9rem;">Next-generation spatial environments allowing visitors to physically navigate and interact with historical site recreations using XR headsets.</p>
           </div>
         </div>
@@ -1317,7 +1450,7 @@
             <img src="5.jpg" alt="Interactive High-Resolution 3D Artifact Display">
           </div>
           <div class="idea-content">
-            <h3>09 // Interactive 3D Digital Displays</h3>
+            <h3>02 // Interactive 3D Digital Displays</h3>
             <p style="color: var(--text-muted); font-size: 0.9rem;">Touch-enabled, ultra-high-definition interactive walls offering full 360-degree rotation and micro-detail exploration of rare artifacts.</p>
           </div>
         </div>
@@ -1327,7 +1460,7 @@
             <img src="4.jpg" alt="Futuristic Architectural Tech & Kiosk Canopy">
           </div>
           <div class="idea-content">
-            <h3>10 // Smart Canopy & Dynamic Data Hubs</h3>
+            <h3>03 // Smart Canopy & Dynamic Data Hubs</h3>
             <p style="color: var(--text-muted); font-size: 0.9rem;">Architecturally integrated data structures combining geometric aesthetic canopies with multi-user interactive information kiosks.</p>
           </div>
         </div>
@@ -1465,7 +1598,50 @@
       </div>
     </section>
 
-    <!-- SECTION 4: 3D AR & Interactive Artifact Lab -->
+    <!-- SECTION 4: English Heritage Story -->
+    <section id="english-story" class="section-page">
+      <div class="hero-card" style="text-align:center;">
+        <div style="color:var(--accent-gold);letter-spacing:2px;font-size:.8rem;margin-bottom:.6rem;">// ENGLISH HERITAGE STORY //\</div>
+        <h2>Mystery of Perak Man</h2>
+        <p style="color:var(--text-muted);max-width:850px;margin:0 auto;line-height:1.8;">
+          Explore the story of Perak Man, one of the most significant prehistoric discoveries associated with the Lenggong Valley. This English-language story uses video to bring Perak's archaeological heritage to life.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:2rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <div>
+            <div style="color:var(--accent-cyan);font-size:.75rem;letter-spacing:1.5px;">STORY 01 // ENGLISH</div>
+            <h3 style="margin-top:.4rem;">The Mystery of Perak Man</h3>
+          </div>
+          <span class="status-badge gold">ARCHAEOLOGICAL HERITAGE</span>
+        </div>
+
+        <div style="width:100%;overflow:hidden;border-radius:12px;background:#000;">
+          <video controls preload="metadata" style="display:block;width:100%;max-height:650px;background:#000;">
+            <source src="Mystery_of_Perak_Man.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
+        <div style="margin-top:1.25rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
+          <div style="padding:1rem;border:1px solid rgba(0,234,255,.18);border-radius:10px;">
+            <strong style="color:var(--accent-cyan);">Focus</strong>
+            <p style="color:var(--text-muted);margin-top:.35rem;">Perak Man and the prehistoric heritage of Lenggong Valley.</p>
+          </div>
+          <div style="padding:1rem;border:1px solid rgba(255,193,7,.18);border-radius:10px;">
+            <strong style="color:var(--accent-gold);">Language</strong>
+            <p style="color:var(--text-muted);margin-top:.35rem;">English Heritage Story for international and English-speaking visitors.</p>
+          </div>
+          <div style="padding:1rem;border:1px solid rgba(0,234,255,.18);border-radius:10px;">
+            <strong style="color:var(--accent-cyan);">Reference</strong>
+            <p style="color:var(--text-muted);margin-top:.35rem;">See the Trusted Sources section for official heritage references.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: 3D AR & Interactive Artifact Lab -->
     <section id="tech" class="section-page">
       <h2>3D AR Interactive Artifact Studio</h2>
       <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Click any button below to render dynamic 3D WebGL models or explore high-fidelity digital twin Sketchfab embeds. Drag to rotate 360°, scroll to zoom, or click directly on the 3D model to inspect!</p>
@@ -1826,55 +2002,168 @@
     </section>
 
 <!-- SECTION 6: Future Ideas -->
-    <section id="future-ideas" class="section-page">
-      <h2>Future Ideas</h2>
-      <p style="color: var(--text-muted);">Practical ideas for protecting, promoting, and sharing Perak's heritage in 2040 through digital technology, sustainability, education, and community participation.</p>
+<section id="future-ideas" class="section-page">
+  <div class="fi-wrap">
+    <div class="fi-kicker">// FUTURE VISION // 2040</div>
+    <h2 class="fi-title">Future <span>Ideas</span></h2>
+    <p class="fi-intro">
+      Imagine how digital technology, sustainability, education and young people could help protect Perak's heritage for future generations.
+    </p>
 
-      <div class="grid" style="margin-top: 1.5rem;">
-        <div class="card">
-          <h3>01 // Smart Heritage Mapping</h3>
-          <p style="color: var(--text-muted);">An intelligent digital mapping system connecting Perak's heritage sites, historical information, visitor routes, and preservation records in one accessible platform.</p>
-        </div>
+    <div class="fi-grid">
+      <article class="fi-card">
+        <div class="fi-number">01</div><div class="fi-icon">🌐</div>
+        <h3>Smart Heritage Mapping</h3>
+        <p>Connect Perak's heritage sites, locations, historical information and preservation records in one interactive digital map.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">A future map could help visitors discover heritage trails while helping students and organisations organise verified heritage information by location.</div>
+      </article>
 
-        <div class="card">
-          <h3>02 // AI Heritage Guide</h3>
-          <p style="color: var(--text-muted);">An AI-powered educational assistant that helps people learn about Perak's heritage and directs them towards reliable and verified historical sources.</p>
-        </div>
+      <article class="fi-card">
+        <div class="fi-number">02</div><div class="fi-icon">🤖</div>
+        <h3>AI Heritage Guide</h3>
+        <p>An educational AI assistant that helps users learn about Perak's heritage and directs them to reliable historical sources.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">The concept can answer questions, explain historical terms and recommend verified sources. AI-generated information should always be checked against trusted references.</div>
+      </article>
 
-        <div class="card">
-          <h3>03 // Eco-Smart Preservation</h3>
-          <p style="color: var(--text-muted);">Sustainable practices and environmental monitoring that could help reduce the impact of climate, tourism, and human activity on heritage sites.</p>
-        </div>
+      <article class="fi-card">
+        <div class="fi-number">03</div><div class="fi-icon">🌱</div>
+        <h3>Eco-Smart Preservation</h3>
+        <p>Combine heritage conservation with sustainable practices and environmental monitoring.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">Possible future solutions include energy-efficient systems, responsible visitor management and environmental monitoring around heritage sites.</div>
+      </article>
 
-        <div class="card">
-          <h3>04 // Heritage Cloud Archive</h3>
-          <p style="color: var(--text-muted);">A digital archive for preserving photographs, historical documents, oral histories, research, and verified heritage information for future generations.</p>
-        </div>
+      <article class="fi-card">
+        <div class="fi-number">04</div><div class="fi-icon">☁️</div>
+        <h3>Heritage Cloud Archive</h3>
+        <p>Preserve photographs, documents, oral histories, research and verified heritage information digitally.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">Each heritage record could include its name, location, historical significance, photographs, references and preservation information.</div>
+      </article>
 
-        <div class="card">
-          <h3>05 // Youth Heritage Network</h3>
-          <p style="color: var(--text-muted);">A platform that encourages students and young people to research, document, and promote local heritage through digital storytelling and community projects.</p>
-        </div>
+      <article class="fi-card">
+        <div class="fi-number">05</div><div class="fi-icon">👩‍🎓</div>
+        <h3>Youth Heritage Network</h3>
+        <p>Encourage students and young people to research, document and promote local heritage.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">Students could conduct local research, record oral histories, create digital stories and contribute verified educational material to the heritage community.</div>
+      </article>
 
-        <div class="card">
-          <h3>06 // Smart Heritage Management</h3>
-          <p style="color: var(--text-muted);">A future system that helps heritage organisations organise information, manage visitors, and support conservation planning and decision-making.</p>
-        </div>
+      <article class="fi-card">
+        <div class="fi-number">06</div><div class="fi-icon">🏛️</div>
+        <h3>Smart Heritage Management</h3>
+        <p>Use connected information systems to support visitor management, heritage records and conservation planning.</p>
+        <button class="fi-more" onclick="toggleFutureCard(this)">EXPLORE <span>+</span></button>
+        <div class="fi-detail">A future management system could bring together site information, visitor data and conservation records to support better planning and decision-making.</div>
+      </article>
+    </div>
+
+    <div class="fi-vision">
+      <div class="fi-vision-label">HERITAGE 2040 // THE BIG QUESTION</div>
+      <h3>How can we protect the past while preparing for the future?</h3>
+      <p>Choose a heritage area, a goal and a practical solution below to create your own Heritage 2040 concept.</p>
+    </div>
+
+    <div class="fi-generator">
+      <div class="fi-generator-head">
+        <div class="fi-kicker">// DESIGN LAB</div>
+        <h3>DESIGN PERAK <span>2040</span></h3>
       </div>
-
-      <div class="hero-card" style="margin-top: 2.5rem; text-align: center;">
-        <h2 style="color: var(--accent-cyan);">DESIGN PERAK 2040</h2>
-        <p style="color: var(--text-muted); max-width: 800px; margin: 1rem auto 0;">Imagine one heritage area, one future goal, and one practical solution. How could your idea help protect Perak's heritage for the next generation?</p>
+      <div class="fi-controls">
+        <label>HERITAGE AREA
+          <select id="fiHeritage">
+            <option>Archaeology</option><option>Historic Buildings</option><option>Royal Heritage</option>
+            <option>Industrial Heritage</option><option>Natural Heritage</option><option>Traditional Culture</option>
+          </select>
+        </label>
+        <label>FUTURE GOAL
+          <select id="fiGoal">
+            <option>Preserve</option><option>Educate</option><option>Promote</option><option>Research</option><option>Engage Young People</option>
+          </select>
+        </label>
+        <label>PROPOSED SOLUTION
+          <select id="fiSolution">
+            <option>Smart Heritage Mapping</option><option>AI Heritage Guide</option><option>Eco-Smart Preservation</option>
+            <option>Heritage Cloud Archive</option><option>Youth Heritage Network</option><option>Smart Heritage Management</option>
+          </select>
+        </label>
       </div>
-    </section>
+      <button class="fi-generate" onclick="generateFutureIdea()">GENERATE MY 2040 IDEA <span>→</span></button>
+      <div id="fiResult" class="fi-result">
+        <div class="fi-result-tag">YOUR HERITAGE 2040 CONCEPT</div>
+        <h4 id="fiResultTitle"></h4>
+        <p id="fiResultText"></p>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <!-- SECTION 7: Interactive Heritage Quiz -->
+<style>
+/* ===== FUTURE IDEAS ===== */
+#future-ideas .fi-wrap{max-width:1180px;margin:0 auto;padding:10px 2vw 50px}
+#future-ideas .fi-kicker{color:var(--accent-cyan,#00eaff);font-size:.68rem;letter-spacing:.22em;font-weight:700}
+#future-ideas .fi-title{font-size:clamp(2.5rem,6vw,5rem);line-height:1;margin:12px 0 16px;text-align:center;letter-spacing:-.04em}
+#future-ideas .fi-title span,#future-ideas .fi-generator-head h3 span{color:var(--accent-cyan,#00eaff)}
+#future-ideas .fi-intro{max-width:760px;margin:0 auto 44px;text-align:center;color:var(--text-muted,#8da5b5);line-height:1.8;font-size:.98rem}
+#future-ideas .fi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+#future-ideas .fi-card{position:relative;padding:25px;border:1px solid rgba(0,234,255,.18);border-radius:14px;background:linear-gradient(145deg,rgba(7,20,34,.96),rgba(4,11,20,.96));overflow:hidden;transition:.28s ease}
+#future-ideas .fi-card:before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--accent-cyan,#00eaff),transparent)}
+#future-ideas .fi-card:hover{transform:translateY(-4px);border-color:rgba(0,234,255,.45);box-shadow:0 16px 38px rgba(0,0,0,.28)}
+#future-ideas .fi-number{position:absolute;right:20px;top:17px;color:rgba(0,234,255,.45);font-size:.72rem;letter-spacing:.12em;font-weight:800}
+#future-ideas .fi-icon{font-size:2rem;margin-bottom:13px}
+#future-ideas .fi-card h3{font-size:1.18rem;margin-bottom:10px;color:#f0fbff}
+#future-ideas .fi-card p{font-size:.87rem;line-height:1.7;color:var(--text-muted,#8da5b5);min-height:70px}
+#future-ideas .fi-more{margin-top:16px;background:transparent;border:1px solid rgba(0,234,255,.45);color:var(--accent-cyan,#00eaff);border-radius:5px;padding:8px 12px;font-size:.65rem;font-weight:800;letter-spacing:.12em;cursor:pointer}
+#future-ideas .fi-more:hover{background:var(--accent-cyan,#00eaff);color:#031019}
+#future-ideas .fi-more span{font-size:.85rem;margin-left:5px}
+#future-ideas .fi-detail{display:none;margin-top:15px;padding:13px 14px;border-left:2px solid var(--accent-cyan,#00eaff);background:rgba(0,234,255,.035);color:#aec1cb;font-size:.78rem;line-height:1.7}
+#future-ideas .fi-detail.open{display:block}
+#future-ideas .fi-vision{margin:48px 0 20px;padding:30px;border:1px solid rgba(230,184,74,.3);border-radius:14px;text-align:center;background:linear-gradient(145deg,rgba(24,22,13,.7),rgba(7,15,24,.85))}
+#future-ideas .fi-vision-label{color:var(--accent-gold,#e6b84a);font-size:.63rem;letter-spacing:.2em;font-weight:800;margin-bottom:12px}
+#future-ideas .fi-vision h3{font-size:clamp(1.35rem,3vw,2rem);margin-bottom:10px}
+#future-ideas .fi-vision p{color:var(--text-muted,#8da5b5);line-height:1.7;max-width:720px;margin:auto;font-size:.87rem}
+#future-ideas .fi-generator{padding:30px;border:1px solid rgba(0,234,255,.22);border-radius:16px;background:rgba(5,14,24,.9)}
+#future-ideas .fi-generator-head{text-align:center;margin-bottom:24px}
+#future-ideas .fi-generator-head h3{font-size:clamp(1.5rem,3vw,2.2rem);margin-top:8px}
+#future-ideas .fi-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+#future-ideas .fi-controls label{display:flex;flex-direction:column;gap:8px;color:#9fb5c0;font-size:.62rem;letter-spacing:.14em;font-weight:700}
+#future-ideas .fi-controls select{width:100%;padding:12px;border:1px solid #183d4d;border-radius:7px;background:#06111c;color:#eefcff;outline:none;font-size:.82rem}
+#future-ideas .fi-controls select:focus{border-color:var(--accent-cyan,#00eaff);box-shadow:0 0 0 2px rgba(0,234,255,.08)}
+#future-ideas .fi-generate{display:block;margin:24px auto 0;padding:12px 19px;border:0;border-radius:6px;background:var(--accent-cyan,#00eaff);color:#021018;font-weight:900;font-size:.68rem;letter-spacing:.1em;cursor:pointer}
+#future-ideas .fi-generate:hover{box-shadow:0 0 24px rgba(0,234,255,.3);transform:translateY(-1px)}
+#future-ideas .fi-generate span{font-size:1rem;margin-left:7px}
+#future-ideas .fi-result{display:none;margin-top:24px;padding:22px;border:1px solid rgba(0,234,255,.5);border-radius:10px;background:rgba(0,234,255,.035);text-align:center}
+#future-ideas .fi-result.show{display:block}
+#future-ideas .fi-result-tag{color:var(--accent-cyan,#00eaff);font-size:.58rem;letter-spacing:.18em;font-weight:800;margin-bottom:9px}
+#future-ideas .fi-result h4{font-size:1.15rem;margin-bottom:9px}
+#future-ideas .fi-result p{max-width:760px;margin:auto;color:#aec1cb;line-height:1.75;font-size:.84rem}
+@media(max-width:760px){#future-ideas .fi-grid,#future-ideas .fi-controls{grid-template-columns:1fr}#future-ideas .fi-card p{min-height:auto}#future-ideas .fi-wrap{padding-left:4vw;padding-right:4vw}}
+
+    /* HERITAGE 2040 — requested map landmark visibility enhancement only */
+    #map-container .leaflet-marker-icon {
+      filter: brightness(1.65) saturate(1.35)
+              drop-shadow(0 0 7px rgba(0, 240, 255, 0.95))
+              drop-shadow(0 0 14px rgba(0, 240, 255, 0.55));
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+
+    #map-container .leaflet-marker-icon:hover {
+      filter: brightness(2) saturate(1.5)
+              drop-shadow(0 0 10px rgba(0, 240, 255, 1))
+              drop-shadow(0 0 20px rgba(0, 240, 255, 0.75));
+    }
+</style>
+
+<!-- SECTION 7: Interactive Heritage Quiz -->
     <section id="quiz" class="section-page">
       <h2 style="text-align: center; display: block;">Interactive Heritage Quiz</h2>
-      <p style="color: var(--text-muted); text-align: center; margin-bottom: 1.5rem;">Test your knowledge on Perak's history and future preservation tech.</p>
+      <p style="color: var(--text-muted); text-align: center; margin-bottom: 1.5rem;">10 history questions based on the Heritage Gallery and Interactive Map.</p>
       
       <div class="quiz-box">
         <div id="quiz-container">
+          <div id="quiz-progress" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-gold); letter-spacing: 1px; margin-bottom: 0.7rem;">QUESTION 1 / 10</div>
           <h3 id="quiz-question" style="color: var(--accent-cyan); font-weight: 600;">Question Loading...</h3>
           <div class="quiz-options" id="quiz-options"></div>
         </div>
@@ -1886,51 +2175,189 @@
       </div>
     </section>
 
-    <!-- SECTION 8: Student Showcase -->
+  <!-- SECTION 8: Student Showcase -->
     <section id="showcase" class="section-page">
-      <h2>Student Showcase</h2>
-      <p style="color: var(--text-muted);">Innovations, research posters, and digital prototypes created by Perak youth builders.</p>
-      <div class="grid" style="margin-top: 1.5rem;">
+      <div class="hero-card" style="text-align:center;">
+        <h2>MEET THE HERITAGE 2040 TEAM</h2>
+        <p style="color:var(--text-muted);">
+          <strong style="color:#00eaff;">4 STUDENTS</strong> •
+          <strong style="color:#00eaff;">3 TEACHERS</strong> •
+          <strong style="color:#00eaff;">1 SHARED MISSION</strong>
+        </p>
+        <p style="margin-top:1rem;color:var(--text-muted);">
+          Ideas by students. Heritage for the future.
+        </p>
+      </div>
+
+      <h3 class="category-header" style="color:#2196F3;">Student Researchers</h3>
+      <div class="grid" style="margin-top:1.5rem;">
         <div class="card">
-          <h3>Heritage Digital Mapping</h3>
-          <p><strong>Builder:</strong> STEM Team Alpha</p>
-          <p style="margin-top: 0.5rem; color: var(--text-muted);">Interactive heritage mapping and digital information system prototype.</p>
+          <h3>01 // Heritage Researcher</h3>
+          <p><strong>Student:</strong> CHE AHMAD IMAD ULHAQ BIN MUHAMAD TAJUDIN</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Researches Perak's history and checks historical facts using reliable sources.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>02 // Digital Developer</h3>
+          <p><strong>Student:</strong> KHAIRUL IKHWAN SYAHMI BIN HAKIMI</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Works on HTML, website design, interactive features and digital presentation.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>03 // Heritage Mapper</h3>
+          <p><strong>Student:</strong> FARAH JABEEN BINTI HAIDER ALI RAZA</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Organises heritage locations, map information and connections between sites.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>04 // Creative Storyteller</h3>
+          <p><strong>Student:</strong> YAASVINI A/P BANDIRWO</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Develops English Heritage Stories, visuals, presentations and digital storytelling.
+          </p>
+        </div>
+      </div>
+
+      <h3 class="category-header" style="color:#2196F3;margin-top:3rem;">Teacher Team</h3>
+      <div class="grid" style="margin-top:1.5rem;">
+        <div class="card">
+          <h3>TEACHER 01 // ASK TEACHER</h3>
+          <p><strong>Name:</strong> LILY IZWANA BINTI MOHD MUSTAZA</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Guides students in computer science and digital technology, including HTML, programming, computational thinking and the development of the HERITAGE 2040 website.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>TEACHER 02 // HISTORY TEACHER</h3>
+          <p><strong>Name:</strong> RAMLAH BINTI AHMAD</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Guides historical research, checks the accuracy of historical facts, and helps students use reliable sources to understand Perak's heritage.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3>TEACHER 03 // ENGLISH TEACHER</h3>
+          <p><strong>Name:</strong> ELIA EDILIYA BINTI MOHD MAGELAN</p>
+          <p style="margin-top:.5rem;color:var(--text-muted);">
+            Guides students in English communication, writing, presentation and storytelling for the English Heritage Stories section.
+          </p>
+        </div>
+      </div>
+
+      <!-- TEAM PHOTO (Placed underneath Teacher Team) -->
+      <div style="margin-top:2.5rem;text-align:center;">
+        <img 
+          src="photo_6064128080176944763_y.jpg" 
+          alt="PBL Team Heritage 2040" 
+          style="width:100%;max-width:900px;height:auto;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.3);display:block;margin:0 auto;"
+        >
+      </div>
+
+      <div class="hero-card" style="margin-top:3rem;text-align:center;">
+        <h3 style="color:#00eaff;">OUR MISSION</h3>
+        <p style="max-width:850px;margin:1rem auto 0;color:var(--text-muted);line-height:1.8;">
+          To explore, document and promote Perak's heritage while using digital technology
+          and STEM-based problem solving to imagine how it can be protected for future generations.
+        </p>
+      </div>
+
+      <h3 class="category-header" style="color:#2196F3;margin-top:3rem;">What We Created</h3>
+      <div class="grid" style="margin-top:1.5rem;">
+        <div class="card">
+          <h3>🔎 Research</h3>
+          <p style="color:var(--text-muted);">Historical research, source checking and heritage documentation.</p>
         </div>
         <div class="card">
-          <h3>Eco-Transit Route Prototype</h3>
-          <p><strong>Builder:</strong> Green Tech Squad</p>
-          <p style="margin-top: 0.5rem; color: var(--text-muted);">Solar-powered autonomous shuttle map connecting Ipoh, Batu Gajah, and Taiping.</p>
+          <h3>🗺️ Interactive Map</h3>
+          <p style="color:var(--text-muted);">A digital way to explore important heritage locations across Perak.</p>
         </div>
         <div class="card">
-          <h3>Heritage Audio Sampler</h3>
-          <p><strong>Builder:</strong> SoundLab Pioneers</p>
-          <p style="margin-top: 0.5rem; color: var(--text-muted);">Synthesizing ambient cultural music and Web Audio soundscapes for digital archives.</p>
+          <h3>💻 Digital Website</h3>
+          <p style="color:var(--text-muted);">A digital heritage experience combining history, technology and education.</p>
         </div>
+        <div class="card">
+          <h3>🚀 Future Ideas</h3>
+          <p style="color:var(--text-muted);">Student proposals for protecting Perak's heritage towards 2040.</p>
+        </div>
+      </div>
+
+      <div class="hero-card" style="margin-top:3rem;text-align:center;">
+        <h3 style="color:#00eaff;">OUR CONTRIBUTION</h3>
+        <p style="color:var(--text-muted);margin-top:.7rem;">
+          Four students. Three teachers. One heritage mission.
+        </p>
+        <p style="color:#fff;font-size:1.1rem;margin-top:1rem;">
+          <em>“Protect the past. Design the future.”</em>
+        </p>
       </div>
     </section>
 
     <!-- SECTION 9: Trusted Sources -->
     <section id="sources" class="section-page">
       <h2>Trusted Sources & References</h2>
-      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Official archives, state heritage registries, and research documentation.</p>
-      <ul class="sources-list">
-        <li>
-          <a href="https://anyflip.com/kwqrz/gbds/basic" target="_blank">Buku Teks Sejarah Tingkatan 2 KSSM</a>
-          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">Official KPM History textbook reference for the historical and heritage content presented in HERITAGE 2040.</p>
+      <p style="color: var(--text-muted); max-width: 850px;">
+        A dedicated evidence layer for the Heritage 2040 project. Sources are grouped by purpose so visitors can see where historical facts, heritage information, location data, and future-planning context come from.
+      </p>
+
+      <div class="sources-toolbar" aria-label="Source filters">
+        <input id="sourceSearch" class="sources-search" type="search" placeholder="Search trusted resources..." oninput="filterSources()">
+        <button class="source-filter active" data-filter="all" onclick="setSourceFilter('all', this)">ALL</button>
+        <button class="source-filter" data-filter="official" onclick="setSourceFilter('official', this)">OFFICIAL</button>
+        <button class="source-filter" data-filter="international" onclick="setSourceFilter('international', this)">INTERNATIONAL</button>
+        <button class="source-filter" data-filter="data" onclick="setSourceFilter('data', this)">DATA / PLANNING</button>
+      </div>
+
+      <ul class="sources-list" id="sourcesList">
+        <li data-category="official" data-source-text="Jabatan Warisan Negara National Heritage Department Malaysia official heritage archives monuments preservation">
+          <span class="source-badge">OFFICIAL</span>
+          <a href="https://www.heritage.gov.my" target="_blank" rel="noopener noreferrer">Jabatan Warisan Negara (National Heritage Department)</a>
+          <p class="source-purpose">Primary reference for Malaysian heritage administration, conservation, heritage records, and national heritage information.</p>
         </li>
-        <li>
-          <a href="https://www.heritage.gov.my" target="_blank">Jabatan Warisan Negara (National Heritage Department)</a>
-          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">Official state records and monument preservation guidelines for Malaysia.</p>
+
+
+        <li data-category="official" data-source-text="KPM Buku Teks Sejarah Tingkatan 2 KSSM Ministry of Education Malaysia history textbook Perak Kesultanan Melayu Melaka heritage">
+          <span class="source-badge">OFFICIAL KPM TEXTBOOK</span>
+          <span style="display:block;color:var(--text-light);font-weight:600;font-size:1.05rem;">Buku Teks Sejarah Tingkatan 2 KSSM</span>
+          <p class="source-purpose">Official Ministry of Education (KPM) Form 2 History textbook reference for the historical context of the Malay sultanates, including Perak and its heritage.</p>
         </li>
-        <li>
-          <a href="https://whc.unesco.org/en/list/1396" target="_blank">UNESCO World Heritage Centre - Archaeological Heritage of Lenggong Valley</a>
-          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">Documentation on prehistoric heritage sites in Perak.</p>
+
+        <li data-category="international" data-source-text="UNESCO World Heritage Centre Archaeological Heritage Lenggong Valley Perak prehistoric heritage">
+          <span class="source-badge">INTERNATIONAL</span>
+          <a href="https://whc.unesco.org/en/list/1396" target="_blank" rel="noopener noreferrer">UNESCO World Heritage Centre - Archaeological Heritage of the Lenggong Valley</a>
+          <p class="source-purpose">International reference for the archaeological heritage of Lenggong Valley and its recognised World Heritage status.</p>
         </li>
-        <li>
-          <a href="https://www.perak.gov.my" target="_blank">Perak State Government Official Portal</a>
-          <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.3rem;">State development framework and Smart Perak blueprint.</p>
+
+        <li data-category="official" data-source-text="Perak State Government official portal Perak development heritage planning">
+          <span class="source-badge">OFFICIAL</span>
+          <a href="https://www.perak.gov.my" target="_blank" rel="noopener noreferrer">Perak State Government Official Portal</a>
+          <p class="source-purpose">Official state-level reference for Perak government information, development context, and public-sector planning.</p>
+        </li>
+
+        <li data-category="data" data-source-text="heritage 2040 verification research primary historical sources archives oral history photographs site scans data">
+          <span class="source-badge">RESEARCH METHOD</span>
+          <span style="display:block;color:var(--text-light);font-weight:600;font-size:1.05rem;">Project Evidence & Verification</span>
+          <p class="source-purpose">Project claims should be cross-checked against primary historical records, official heritage archives, site documentation, photographs, oral-history interviews, and verified datasets before being presented as established facts.</p>
+        </li>
+
+        <li data-category="data" data-source-text="future ideas smart heritage 2040 planning evidence proposals technology sustainability">
+          <span class="source-badge">FUTURE / PROPOSAL</span>
+          <span style="display:block;color:var(--text-light);font-weight:600;font-size:1.05rem;">Future Ideas Evidence Layer</span>
+          <p class="source-purpose">Future-facing concepts are labelled as proposals rather than historical facts. Their feasibility, technology claims, and planning assumptions should be supported by appropriate official or academic evidence.</p>
         </li>
       </ul>
+
+      <div id="sourceEmpty" style="display:none;text-align:center;color:var(--text-muted);padding:2rem;">No matching resources found.</div>
+
+      <div class="source-note">
+        <strong style="color:var(--accent-gold);">SOURCE POLICY:</strong> Official government and heritage authorities are prioritised for factual claims. UNESCO and established academic sources provide independent supporting evidence. AI-generated explanations and future concepts are not treated as primary evidence and should be checked against trusted references.
+      </div>
     </section>
 
   </div>
@@ -1939,6 +2366,33 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <script>
+    let activeSourceFilter = 'all';
+
+    function setSourceFilter(filter, button) {
+      activeSourceFilter = filter;
+      document.querySelectorAll('.source-filter').forEach(btn => btn.classList.remove('active'));
+      if (button) button.classList.add('active');
+      filterSources();
+    }
+
+    function filterSources() {
+      const query = (document.getElementById('sourceSearch')?.value || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('#sourcesList li');
+      let visible = 0;
+
+      cards.forEach(card => {
+        const categoryMatch = activeSourceFilter === 'all' || card.dataset.category === activeSourceFilter;
+        const textMatch = !query || (card.dataset.sourceText || card.textContent).toLowerCase().includes(query);
+        const show = categoryMatch && textMatch;
+        card.style.display = show ? '' : 'block';
+        if (!show) card.style.display = 'none';
+        if (show) visible++;
+      });
+
+      const empty = document.getElementById('sourceEmpty');
+      if (empty) empty.style.display = visible ? 'none' : 'block';
+    }
+
     // Web Audio Synthesizer Context
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -2096,13 +2550,7 @@
       }).addTo(map);
 
       heritageSites.forEach((site, index) => {
-        const brightIcon = L.divIcon({
-          className: '',
-          html: '<div class="heritage-marker-bright"></div>',
-          iconSize: [18, 18],
-          iconAnchor: [9, 9]
-        });
-        const marker = L.marker(site.coords, { icon: brightIcon }).addTo(map);
+        const marker = L.marker(site.coords).addTo(map);
         marker.on('click', () => { focusSite(index); });
         markers.push(marker);
       });
@@ -2391,12 +2839,49 @@
       renderer.render(scene, camera);
     }
 
+    document.addEventListener('click', (event) => {
+      if (window.innerWidth > 680) return;
+
+      const nav = document.querySelector('nav');
+      const menu = document.querySelector('.nav-links');
+      const button = document.querySelector('.mobile-menu-toggle');
+
+      if (nav && menu && button &&
+          menu.classList.contains('mobile-open') &&
+          !nav.contains(event.target)) {
+        closeMobileNav();
+      }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
       attachSoundEffects();
       loadQuizQuestion();
       initMap();
       init3DStudio();
     });
+
+    function toggleMobileNav(button) {
+      const navLinks = document.querySelector('.nav-links');
+      if (!navLinks) return;
+
+      const isOpen = navLinks.classList.toggle('mobile-open');
+      button.setAttribute('aria-expanded', String(isOpen));
+      button.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+      button.textContent = isOpen ? '✕' : '☰';
+      document.body.classList.toggle('mobile-nav-open', isOpen);
+    }
+
+    function closeMobileNav() {
+      const navLinks = document.querySelector('.nav-links');
+      const button = document.querySelector('.mobile-menu-toggle');
+      if (!navLinks || !button) return;
+
+      navLinks.classList.remove('mobile-open');
+      button.setAttribute('aria-expanded', 'false');
+      button.setAttribute('aria-label', 'Open navigation menu');
+      button.textContent = '☰';
+      document.body.classList.remove('mobile-nav-open');
+    }
 
     function switchTab(event, tabId) {
       document.querySelectorAll('.section-page').forEach(el => el.classList.remove('active'));
@@ -2418,6 +2903,10 @@
         });
       }
 
+      if (window.innerWidth <= 680) {
+        closeMobileNav();
+      }
+
       if (tabId === 'map' && map) {
         setTimeout(() => { map.invalidateSize(); }, 200);
       }
@@ -2427,61 +2916,64 @@
           resize3DCanvas();
         }, 100);
       }
+
+      // Quiz music plays only while the Heritage Quiz section is open.
+      if (tabId === 'quiz') {
+        startQuizMusic();
+      } else {
+        stopQuizMusic();
+      }
     }
 
-    // HERITAGE 2040 site-wide background music
-    // The browser may block autoplay until the visitor interacts with the page.
     const bgAudio = document.getElementById('bgMusic');
     const audioBtn = document.getElementById('audioToggle');
-    bgAudio.loop = true;
-
-    function updateAudioButton() {
-      audioBtn.innerText = bgAudio.paused ? '🎵 Play Music' : '⏸ Pause Music';
-    }
-
-    function startBackgroundMusic() {
-      if (!bgAudio.paused) return;
-      bgAudio.play().then(() => {
-        updateAudioButton();
-        document.removeEventListener('pointerdown', startBackgroundMusic);
-        document.removeEventListener('keydown', startBackgroundMusic);
-      }).catch(() => {
-        // Autoplay can be blocked; the visitor can use the music button.
-      });
-    }
 
     function toggleAudio() {
       if (bgAudio.paused) {
-        bgAudio.play().then(updateAudioButton).catch(err => console.log('Music:', err));
+        bgAudio.play().then(() => {
+          audioBtn.innerText = '⏸ Pause Music';
+        }).catch(err => console.log('Autoplay:', err));
       } else {
         bgAudio.pause();
-        updateAudioButton();
+        audioBtn.innerText = '🎵 Sound Synth';
       }
     }
 
-    // Start music after the first user interaction so it works with browser autoplay policies.
-    document.addEventListener('pointerdown', startBackgroundMusic, { once: false });
-    document.addEventListener('keydown', startBackgroundMusic, { once: false });
-    bgAudio.addEventListener('play', updateAudioButton);
-    bgAudio.addEventListener('pause', updateAudioButton);
-    updateAudioButton();
+    const quizMusic = document.getElementById('quizMusic');
+    const wrongAnswerSound = document.getElementById('wrongAnswerSound');
+    const rightAnswerSound = document.getElementById('rightAnswerSound');
+
+    function startQuizMusic() {
+      if (!quizMusic) return;
+      quizMusic.volume = 0.32;
+      quizMusic.play().catch(err => console.log('Quiz music autoplay:', err));
+    }
+
+    function stopQuizMusic() {
+      if (!quizMusic) return;
+      quizMusic.pause();
+      quizMusic.currentTime = 0;
+    }
+
+    function playQuizAnswerSound(isCorrect) {
+      const sound = isCorrect ? rightAnswerSound : wrongAnswerSound;
+      if (!sound) return;
+      sound.currentTime = 0;
+      sound.volume = 0.55;
+      sound.play().catch(err => console.log('Answer sound:', err));
+    }
 
     const quizData = [
-      {
-        question: "1. Which Perak landmark blends Scottish, Moorish, and Indian architectural motifs?",
-        options: ["Kellie's Castle", "Birch Clock Tower", "Taiping Lake Gardens", "Ipoh Railway Station"],
-        answer: 0
-      },
-      {
-        question: "2. What is the primary purpose of 3D Volumetric Photogrammetry & GIS in Heritage Tech?",
-        options: ["Cleaning old walls", "Creating digital spatial backups of monuments", "Generating artificial rain", "Demolishing ruins"],
-        answer: 1
-      },
-      {
-        question: "3. Which prehistoric Perak site is listed as a UNESCO World Heritage area?",
-        options: ["Concubine Lane", "Lenggong Valley", "Batu Gajah", "Pangkor Island"],
-        answer: 1
-      }
+      { question: "1. Which Perak landmark was built by William Kellie-Smith and blends Scottish castle elements with Moorish arches?", options: ["Kellie's Castle", "Ipoh Railway Station", "Ubudiah Mosque", "Istana Kenangan"], answer: 0 },
+      { question: "2. What nickname is given to Ipoh Railway Station in the Heritage Gallery?", options: ["The Royal Gateway of Perak", "The Taj Mahal of Ipoh", "The Golden Palace of Ipoh", "The Heritage Gate of Perak"], answer: 1 },
+      { question: "3. What was the Leaning Tower of Teluk Intan originally erected as in 1885?", options: ["A railway station", "A royal palace", "A water tower and clock chime station", "A museum"], answer: 2 },
+      { question: "4. Who designed Ubudiah Mosque according to the Interactive Map?", options: ["Arthur Benison Hubback", "William Kellie-Smith", "J. W. W. Birch", "Edmund Valentine Teale"], answer: 0 },
+      { question: "5. Which heritage site was built in 1926 as a temporary royal residence?", options: ["Taiping Lake Gardens", "Ipoh Railway Station", "Istana Kenangan", "Leaning Tower of Teluk Intan"], answer: 2 },
+      { question: "6. Which site was established in 1880 on top of an abandoned tin mine?", options: ["Taiping Lake Gardens", "Perak River Basin", "Kellie's Castle", "Ubudiah Mosque"], answer: 0 },
+      { question: "7. What architectural style is Ubudiah Mosque described as representing?", options: ["Tudor Gothic", "Indo-Saracenic", "Art Deco", "Neo-Classical"], answer: 1 },
+      { question: "8. Which heritage landmark served as Perak's central transit hub during the peak tin-mining gold rush era?", options: ["Kellie's Castle", "Ipoh Railway Station", "Istana Kenangan", "Taiping Lake Gardens"], answer: 1 },
+      { question: "9. What makes Istana Kenangan especially distinctive as a historic building?", options: ["It was built entirely without metal nails", "It was built entirely from marble", "It was the first railway station in Perak", "It was built as a tin mine"], answer: 0 },
+      { question: "10. According to the Interactive Map, what important historical role did the Perak River Basin play?", options: ["It was the site of Malaysia's first railway station", "It was the cradle of Perak's ancient royal dynasties and trade networks", "It was built as a temporary royal palace", "It was created as a public park in 1880"], answer: 1 }
     ];
 
     let currentQuestion = 0;
@@ -2489,10 +2981,11 @@
 
     function loadQuizQuestion() {
       const q = quizData[currentQuestion];
+      const progress = document.getElementById('quiz-progress');
+      if (progress) progress.innerText = `QUESTION ${currentQuestion + 1} / ${quizData.length}`;
       document.getElementById('quiz-question').innerText = q.question;
       const optionsContainer = document.getElementById('quiz-options');
       optionsContainer.innerHTML = '';
-
       q.options.forEach((opt, index) => {
         const btn = document.createElement('button');
         btn.className = 'option-btn';
@@ -2504,31 +2997,50 @@
     }
 
     function checkAnswer(selectedIndex) {
-      if (selectedIndex === quizData[currentQuestion].answer) {
-        score++;
-      }
+      const isCorrect = selectedIndex === quizData[currentQuestion].answer;
+      playQuizAnswerSound(isCorrect);
+      if (isCorrect) score++;
       currentQuestion++;
-      if (currentQuestion < quizData.length) {
-        loadQuizQuestion();
-      } else {
-        showQuizResults();
-      }
+      if (currentQuestion < quizData.length) loadQuizQuestion();
+      else showQuizResults();
     }
 
     function showQuizResults() {
+      stopQuizMusic();
       document.getElementById('quiz-container').style.display = 'none';
       const resultBox = document.getElementById('quiz-result');
       resultBox.style.display = 'block';
-      document.getElementById('score-text').innerText = `ACCURACY RATING: ${score} / ${quizData.length} CORRECT`;
+      document.getElementById('score-text').innerText = `SCORE: ${score} / ${quizData.length} CORRECT`;
     }
 
     function resetQuiz() {
       currentQuestion = 0;
       score = 0;
+      startQuizMusic();
       document.getElementById('quiz-container').style.display = 'block';
       document.getElementById('quiz-result').style.display = 'none';
       loadQuizQuestion();
     }
+
+    function toggleFutureCard(button) {
+      const detail = button.nextElementSibling;
+      const open = detail.classList.toggle('open');
+      button.innerHTML = open ? 'CLOSE <span>−</span>' : 'EXPLORE <span>+</span>';
+    }
+
+    function generateFutureIdea() {
+      const heritage = document.getElementById('fiHeritage').value;
+      const goal = document.getElementById('fiGoal').value;
+      const solution = document.getElementById('fiSolution').value;
+      const title = heritage + ' + ' + solution;
+      const resultText = 'Create a practical ' + solution.toLowerCase() + ' concept for ' + heritage.toLowerCase() + ' to help ' + goal.toLowerCase() + ' Perak\'s heritage. The idea should use reliable information, clear documentation and meaningful community or student participation.';
+      document.getElementById('fiResultTitle').textContent = title;
+      document.getElementById('fiResultText').textContent = resultText;
+      const result = document.getElementById('fiResult');
+      result.classList.add('show');
+      result.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+
   </script>
 </body>
 </html>
